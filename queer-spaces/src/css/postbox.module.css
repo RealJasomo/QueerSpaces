@@ -1,0 +1,42 @@
+.profileImage {
+    border-radius: 50%;
+    border: 5px solid #D8D8D8;
+    width: 30%;
+    margin: 15px 15px;
+}
+
+.card {
+    display: grid;
+    grid-template-columns: 20% 80%;
+    justify-content: start;
+    background-color: white;
+    width: 80vw;
+    height: 30vh;
+    box-shadow: 10px 10px 20px #666;
+    border-radius: 25px;
+    margin: 15px auto;
+}
+
+.content{
+    margin: 25px 30px !important;
+    width: 55vw;
+}
+
+.selectors {
+    display: flex;
+    width: 75vw;
+}
+
+.category {
+    margin: 0 auto 0 15px;
+    width: 10rem;
+}
+
+.icon {
+    height: 100px;
+}
+
+.send{
+    margin-left: 5rem;
+    color: #A42197;
+}
