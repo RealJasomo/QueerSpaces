@@ -14,3 +14,12 @@
 .title{
     flex-grow: 1;
 }
+
+.content {
+  background-color: #D8D8D8;
+}
+
+.link {
+  text-decoration: none;
+  color: inherit;
+}
