@@ -1,42 +1,51 @@
 .profileImage {
     border-radius: 50%;
     border: 5px solid #D8D8D8;
-    width: 30%;
+    width: 45px;
     margin: 15px 15px;
 }
-
-.card {
+.upper {
+    width: 100%;
     display: grid;
-    grid-template-columns: 20% 80%;
-    justify-content: start;
+    grid-template-columns: 10% 90%;
+}
+.card {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
     background-color: white;
-    width: 80vw;
-    height: 30vh;
     box-shadow: 10px 10px 20px #666;
     border-radius: 25px;
+    width: 80%;
     margin: 15px auto;
 }
-
+.contentContainer{
+    width: 100%;
+}
 .content{
-    margin: 25px 30px !important;
-    width: 55vw;
+    margin-left: 50px;
+    margin-top: 10px;
+    width: 80%;
+    height: 20vh;
+    border-radius: 5px;
+    outline: 0px;
+    font-size: 20px;
+    resize: none;
 }
 
 .selectors {
     display: flex;
     width: 75vw;
+    margin-bottom: 15px;
 }
 
 .category {
     margin: 0 auto 0 15px;
     width: 10rem;
 }
-
-.icon {
-    height: 100px;
+.gap{
+    padding: 0 2%;
 }
-
 .send{
-    margin-left: 5rem;
     color: #A42197;
 }

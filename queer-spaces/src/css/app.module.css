@@ -2,9 +2,9 @@
   margin: 0;
   padding: 0pt;
 }
+
 :root {
     flex-grow: 1; 
-    background-color: #D8D8D8;
 }
 
 .menuButton{
@@ -15,9 +15,6 @@
     flex-grow: 1;
 }
 
-.content {
-  background-color: #D8D8D8;
-}
 
 .link {
   text-decoration: none;

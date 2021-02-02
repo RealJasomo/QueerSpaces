@@ -1,14 +1,14 @@
 import React, { Component } from 'react'
-import {TextField, Link, Button, Typography, CssBaseline, Container} from '@material-ui/core'
+import {TextField, Button, Typography, CssBaseline, Container} from '@material-ui/core'
 import styles from '../css/login.module.css'
 import firebase from './firebase/Firebase'
 
 
-interface LoginProps{
+interface SignUpProps{
 
 }
 
-interface LoginState {
+interface SignUpState {
     email: string,
     password: string,
     error: string
@@ -20,8 +20,8 @@ interface FirebaseError {
     a: string | null
 }
 
-export default class Login extends Component<LoginProps, LoginState> {
-    constructor(props: LoginProps){
+export default class SignUp extends Component<SignUpProps, SignUpState> {
+    constructor(props: SignUpProps){
         super(props);
         this.state = {
             email: "",
@@ -29,11 +29,11 @@ export default class Login extends Component<LoginProps, LoginState> {
             error: ""
         }
     }
-    handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
+    handleSignUp = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
+        firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password)
             .then(()=> {
-                console.log("signed in sucessfully");
+                console.log("signed up sucessfully");
                 this.setState({error: ""});
                 window.location.href="/";
             })
@@ -42,30 +42,20 @@ export default class Login extends Component<LoginProps, LoginState> {
                 this.setState({error: err.message});
             })
     }
-    handleGoogleLogin = () =>{
-        var provider: firebase.auth.GoogleAuthProvider = new firebase.auth.GoogleAuthProvider();
-        firebase.auth().signInWithPopup(provider).then(() => {
-            console.log("signed in sucessfully");
-                this.setState({error: ""});
-                window.location.href="/";
-        }).catch((err: FirebaseError) => {
-            console.log("Error:",err);
-            this.setState({error: err.message});
-        });
-    }
+
     render() {
         let errorMessage;
         if(this.state.error){
             errorMessage = <div className={styles.warning}>{this.state.error}</div>;
         }
         return (
-            <form onSubmit={this.handleLogin}>
+            <form onSubmit={this.handleSignUp}>
             <Container component="main" maxWidth="xs">
             <CssBaseline />
             {errorMessage}
             <div className={styles.paper}>
                 <Typography component="h1" variant="h5">
-                    Login
+                    Sign Up
                 </Typography>
                 <TextField
                     className={styles.formInput}
@@ -100,9 +90,6 @@ export default class Login extends Component<LoginProps, LoginState> {
                     })}
                 />
                 <div className={styles.submitContainer}>
-                    <Link href="#" variant="body2" className={styles.forgot}>
-                        Forgot password?
-                    </Link>
                     <Button
                         type="submit"
                         fullWidth
@@ -110,22 +97,9 @@ export default class Login extends Component<LoginProps, LoginState> {
                         color="primary"
                         className={styles.submit}
                     >
-                        Login
+                        Sign Up
                     </Button>
                 </div>
-                <Link href="/signup" variant="body2" className={styles.signup}>
-                    New to this site?&nbsp;&nbsp;Click here to sign up
-                </Link> 
-                <Button
-                        type="button"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        className={styles.submit}
-                        onClick={this.handleGoogleLogin}
-                    >
-                        Login with Google
-                    </Button>
             </div>
             </Container>
             </form>

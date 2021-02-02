@@ -7,11 +7,32 @@ import {
   Link
 } from 'react-router-dom'
 import MenuIcon from '@material-ui/icons/Menu'
-import {Login} from './components'
+import {Login, SignUp, firebase, PostBox, PostContext} from './components'
 import styles from './css/app.module.css'
 
-class App extends Component {
- 
+interface ApplicationState {
+  loggedIn: boolean,
+  user: firebase.User | null
+}
+
+class App extends Component<any, ApplicationState> {
+  constructor(props: any){
+    super(props);
+    this.state = {
+      loggedIn: false,
+      user: null
+    }
+    firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
+      if(user){
+        this.setState({loggedIn: true, user: user});
+      }else{
+        this.setState({loggedIn: false, user: null});
+      }
+    })
+  }
+  handleSignout = () => {
+    firebase.auth().signOut();
+  }
   render () {
     return (
     <>
@@ -25,19 +46,24 @@ class App extends Component {
       <Typography variant="h6" className={`${styles.title} ${styles.link}`} component={Link} to="/">
         Queer Spaces
       </Typography>
-      <Button color="inherit" className={styles.link} component={Link} to="/login">Login</Button>
+      {!this.state.loggedIn ? <Button color="inherit" className={styles.link} component={Link} to="/login">Login</Button> : <Button color="inherit" onClick={this.handleSignout}>Sign out</Button>}
     </Toolbar>
     </AppBar>
       <Switch>
           <Route exact path="/">
             <div>
-              <h1>Homepage</h1>
+              {this.state.user ? <><PostBox /><PostContext/></>: <p>Please login</p>}
             </div>
           </Route>
       </Switch>
       <Switch>
         <Route path="/login">
           <Login />
+        </Route>
+      </Switch>
+      <Switch>
+        <Route path="/signup">
+          <SignUp />
         </Route>
       </Switch>
     </Router>
