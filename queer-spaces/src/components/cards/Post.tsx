@@ -53,7 +53,7 @@ export default class Post extends Component<PostPropState, PostPropState> {
         return (<>
             <div className={styles.card}>
                 <div id="profile" className={styles.profile}>
-                    <img src={BlankProfile} className = {styles.profileImage} alt="profile"/> 
+                    <img src={this.state.userInfo?.photo || BlankProfile} className = {styles.profileImage} alt="profile"/> 
                     <div className={styles.profileInfo}>
                         <h2 style={{fontFamily:'roboto', color: '#5A5353'}}>{this.state.userInfo?.name || 'Profile Name'}</h2>
                         <p style={{fontFamily:'roboto', color: '#D8D8D8'}}>{this.state.userInfo?.username || this.state.userInfo?.email || '@username'}</p>

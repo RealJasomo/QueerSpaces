@@ -15,7 +15,8 @@ export default class PostContext extends Component<{}, PostContextState> {
         }
     }
     componentDidMount(){
-        this.state.ref.onSnapshot((snapshot: firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>) =>{
+        this.state.ref
+        .orderBy('created', 'desc').onSnapshot((snapshot: firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>) =>{
             this.setState({documentSnapshot: snapshot.docs});
         });
     }
