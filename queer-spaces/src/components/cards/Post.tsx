@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { firebase, usersRef } from '../'
+import { firebase, usersRef, usernameRef } from '../'
 import { IconButton } from '@material-ui/core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCommentDots } from '@fortawesome/free-regular-svg-icons'
@@ -27,11 +27,27 @@ export default class Post extends Component<PostPropState, PostPropState> {
         this.updateUserInfo();
     }
     updateUserInfo = () => {
-        if(this.state.user_id)
+        if(this.state.user_id){
             usersRef.doc(this.state.user_id).onSnapshot((snapshot) => {
                 if(snapshot.exists)
                     this.setState({userInfo: snapshot.data()})
             })
+            this.grabUserName();
+        }
+    }
+    grabUserName = () => {
+        usernameRef.where('uid','==', this.state.user_id).get()
+        .then((snap) => {
+            if(snap.size > 0)
+                snap.forEach((doc) => {
+                    this.setState({
+                        userInfo: {
+                            ...this.state.userInfo,
+                            username: `@${doc.id}`
+                        }
+                    })
+                })
+        })
     }
     render() {
         return (<>

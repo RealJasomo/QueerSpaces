@@ -1,7 +1,6 @@
 export {default as PostBox} from './cards/PostBox'
 export {default as Login} from './Login'
 export {default as SignUp} from './SignUp'
-export {default as firebase} from './firebase/Firebase'
-export { usersRef } from './firebase/Firebase'
+export {default as firebase, usersRef, usernameRef} from './firebase/Firebase'
 export {default as Post} from './cards/Post'
 export {default as PostContext} from './PostContext'
