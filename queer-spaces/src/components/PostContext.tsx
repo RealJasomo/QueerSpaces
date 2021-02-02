@@ -20,7 +20,10 @@ export default class PostContext extends Component<{}, PostContextState> {
         });
     }
     render() {
-        let posts = this.state.documentSnapshot.map((doc, idx) =>  <Post  category={doc.get('category')} text_content={doc.get('text_content')} poll_question={doc.get('poll_question')} poll_options={doc.get('poll_options')} image_url={doc.get('image_url')} user_id={doc.get('user_id')} created={doc.get('created')} key={idx} />)
+        let posts = this.state.documentSnapshot.map((doc, idx) => {
+        
+        return <Post  category={doc.get('category')} text_content={doc.get('text_content')} poll_question={doc.get('poll_question')} poll_options={doc.get('poll_options')} image_url={doc.get('image_url')} user_id={doc.get('user_id')} created={doc.get('created')} key={idx} />
+    })
         return (
             <div>
                 {posts}

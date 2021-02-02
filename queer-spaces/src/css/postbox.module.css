@@ -28,7 +28,9 @@
     width: 80%;
     height: 20vh;
     border-radius: 5px;
-    outline: 0px;
+    border-style: none; 
+    border-color: Transparent; 
+    overflow: auto;
     font-size: 20px;
     resize: none;
 }
@@ -48,4 +50,41 @@
 }
 .send{
     color: #A42197;
+}
+
+.profile {
+    display: flex;
+    width: 100%;
+    align-items: center;
+}
+
+.postText {
+    margin: 15px 15px;
+    font-size: 1.3em;
+    font-family: Roboto;
+    font-weight: 600;
+    width: 100%;
+}
+
+.likes{
+    display: flex;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.buttons {
+    display: flex;
+    width: 100%;
+    margin: 0px 15px;
+}
+
+.iconBlack{
+    color: black;
+}
+
+.likeNumber {
+    font-family: Roboto;
+    font-weight: 600;
+    margin-top: 10px;
+    color: black;
 }

@@ -7,7 +7,7 @@ import {
   Link
 } from 'react-router-dom'
 import MenuIcon from '@material-ui/icons/Menu'
-import {Login, SignUp, firebase, PostBox, PostContext} from './components'
+import {Login, SignUp, firebase, usersRef, PostBox, PostContext} from './components'
 import styles from './css/app.module.css'
 
 interface ApplicationState {
@@ -24,6 +24,14 @@ class App extends Component<any, ApplicationState> {
     }
     firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
       if(user){
+        const {uid, photoURL, phoneNumber, displayName, email, isAnonymous} = user;
+        if(!isAnonymous)
+        usersRef.doc(uid).set({
+          photo: photoURL,
+          phone: phoneNumber,
+          name: displayName,
+          email: email
+        });
         this.setState({loggedIn: true, user: user});
       }else{
         this.setState({loggedIn: false, user: null});

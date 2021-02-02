@@ -10,4 +10,5 @@ const config = {
 };
 
 firebase.initializeApp(config);
+export const usersRef = firebase.firestore().collection('Users');
 export default firebase;

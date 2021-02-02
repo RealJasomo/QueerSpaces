@@ -1,6 +1,13 @@
 import React, { Component } from 'react'
-import { firebase } from '../'
-
+import { firebase, usersRef } from '../'
+import { IconButton } from '@material-ui/core'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCommentDots } from '@fortawesome/free-regular-svg-icons'
+import ThumbUpOutlinedIcon from '@material-ui/icons/ThumbUpOutlined'
+import ThumbDownOutlinedIcon from '@material-ui/icons/ThumbDownOutlined'
+import BlankProfile from '../../res/bp.png'
+import styles from '../../css/postbox.module.css'
+import { User } from '../../interfaces/User'
 interface PostPropState{
     category: string,
     text_content?: string | null,
@@ -8,7 +15,8 @@ interface PostPropState{
     poll_options?: Array<string> | null,
     image_url?: string | null,
     user_id?: string | null,
-    created: firebase.firestore.Timestamp
+    created: firebase.firestore.Timestamp,
+    userInfo?: Partial<User>
 }
 export default class Post extends Component<PostPropState, PostPropState> {
     constructor(props: PostPropState){
@@ -16,12 +24,49 @@ export default class Post extends Component<PostPropState, PostPropState> {
         this.state = {
             ...props
         }
+        this.updateUserInfo();
+    }
+    updateUserInfo = () => {
+        if(this.state.user_id)
+            usersRef.doc(this.state.user_id).onSnapshot((snapshot) => {
+                if(snapshot.exists)
+                    this.setState({userInfo: snapshot.data()})
+            })
     }
     render() {
-        return (
+        return (<>
+            <div className={styles.card}>
+                <div id="profile" className={styles.profile}>
+                    <img src={BlankProfile} className = {styles.profileImage} alt="profile"/> 
+                    <div className={styles.profileInfo}>
+                        <h2 style={{fontFamily:'roboto', color: '#5A5353'}}>{this.state.userInfo?.name || 'Profile Name'}</h2>
+                        <p style={{fontFamily:'roboto', color: '#D8D8D8'}}>{this.state.userInfo?.username || this.state.userInfo?.email || '@username'}</p>
+                    </div>
+                </div> 
+                <div className={styles.postText}>
+                    {this.state.text_content}
+                </div>
+                <div className={styles.buttons}>
+                <IconButton>
+                    <FontAwesomeIcon icon={faCommentDots}  className={styles.iconBlack}/>
+                </IconButton>
+                <div className={styles.likes}>
+                    <p className={styles.likeNumber}>0</p>
+                    <IconButton>
+                        <ThumbUpOutlinedIcon className={styles.iconBlack}/>
+                    </IconButton>
+                </div>
+                <div className={styles.likes}>
+                    <p className={styles.likeNumber}>0</p>
+                    <IconButton>
+                        <ThumbDownOutlinedIcon className={styles.iconBlack}/>
+                    </IconButton>
+                </div>
+                </div>
+            </div>
             <div>
                <pre>{JSON.stringify(this.state)}</pre>
             </div>
-        )
+            </>)
     }
 }
