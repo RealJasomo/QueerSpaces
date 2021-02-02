@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {AppBar, Toolbar, IconButton, Typography, Button} from '@material-ui/core'
+import {AppBar, Toolbar, IconButton, Typography, Button, Menu, MenuItem} from '@material-ui/core'
 import {
   BrowserRouter as Router,
   Switch,
@@ -9,9 +9,11 @@ import {
 import MenuIcon from '@material-ui/icons/Menu'
 import {Login, SignUp, firebase, usersRef, PostBox, PostContext} from './components'
 import styles from './css/app.module.css'
+import BlankProfile from './res/bp.png'
 
 interface ApplicationState {
   loggedIn: boolean,
+  profileMenuOpen: HTMLImageElement | null,
   user: firebase.User | null
 }
 
@@ -20,6 +22,7 @@ class App extends Component<any, ApplicationState> {
     super(props);
     this.state = {
       loggedIn: false,
+      profileMenuOpen: null,
       user: null
     }
     firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
@@ -54,7 +57,22 @@ class App extends Component<any, ApplicationState> {
       <Typography variant="h6" className={`${styles.title} ${styles.link}`} component={Link} to="/">
         Queer Spaces
       </Typography>
-      {!this.state.loggedIn ? <Button color="inherit" className={styles.link} component={Link} to="/login">Login</Button> : <Button color="inherit" onClick={this.handleSignout}>Sign out</Button>}
+      {!this.state.loggedIn ? 
+        <Button color="inherit" className={styles.link} component={Link} to="/login">Login</Button> : 
+        <>
+          <img src={this.state.user?.photoURL|| BlankProfile} className = {styles.profileImage} alt="profile" onClick={(event) => this.setState({profileMenuOpen: event.currentTarget})}/> 
+          <Menu
+            id="profile-menu"
+            style={{top: '40px'}}
+            anchorEl={this.state.profileMenuOpen}
+            keepMounted
+            open={!!this.state.profileMenuOpen}
+            onClose={() => this.setState({profileMenuOpen: null})}>
+            <MenuItem>Profile</MenuItem>
+            <MenuItem>My account</MenuItem>
+            <MenuItem onClick={this.handleSignout}>Sign out</MenuItem>
+          </Menu>
+        </>}
     </Toolbar>
     </AppBar>
       <Switch>
