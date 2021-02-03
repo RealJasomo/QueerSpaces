@@ -7,7 +7,7 @@ import InsertChartIcon from '@material-ui/icons/InsertChart'
 import ImageIcon from '@material-ui/icons/Image'
 import SendIcon from '@material-ui/icons/Send'
 import {firebase} from '../';
-
+import {categories} from '../../util/Constants'
 interface PostBoxProps {
 
 }
@@ -21,7 +21,7 @@ export default class PostBox extends Component<PostBoxProps, PostBoxState>{
     constructor(props: PostBoxProps){
         super(props);
         this.state = {
-            categories: ['Gender Identity', 'Sexuality', 'Questions'],
+            categories: categories,
             category: '',
             content: '',
             user: null
