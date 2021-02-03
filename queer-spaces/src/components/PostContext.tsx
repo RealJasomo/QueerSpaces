@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import {Post, firebase} from './'
 
+
 interface PostContextState {
     ref: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>,
     documentSnapshot: Array<firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>>

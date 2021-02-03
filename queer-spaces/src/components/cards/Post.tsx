@@ -8,6 +8,7 @@ import ThumbDownOutlinedIcon from '@material-ui/icons/ThumbDownOutlined'
 import BlankProfile from '../../res/bp.png'
 import styles from '../../css/postbox.module.css'
 import { User } from '../../interfaces/User'
+import { generate, AnonymousInfo } from '../../util/AnonymousGenerator'
 interface PostPropState{
     category: string,
     text_content?: string | null,
@@ -50,13 +51,14 @@ export default class Post extends Component<PostPropState, PostPropState> {
         })
     }
     render() {
+        var anonymous : AnonymousInfo = generate();
         return (<>
             <div className={styles.card}>
                 <div id="profile" className={styles.profile}>
-                    <img src={this.state.userInfo?.photo || BlankProfile} className = {styles.profileImage} alt="profile"/> 
+                    <img style={{backgroundColor: anonymous.color}}src={this.state.userInfo?.photo || anonymous.image || BlankProfile} className = {styles.profileImage} alt="profile"/> 
                     <div className={styles.profileInfo}>
-                        <h2 style={{fontFamily:'roboto', color: '#5A5353'}}>{this.state.userInfo?.name || 'Profile Name'}</h2>
-                        <p style={{fontFamily:'roboto', color: '#D8D8D8'}}>{this.state.userInfo?.username || this.state.userInfo?.email || '@username'}</p>
+                        <h2 style={{fontFamily:'roboto', color: '#5A5353'}}>{this.state.userInfo?.name || anonymous.name}</h2>
+                        <p style={{fontFamily:'roboto', color: '#D8D8D8'}}>{this.state.userInfo?.username || this.state.userInfo?.email || anonymous.username}</p>
                     </div>
                 </div> 
                 <div className={styles.postText}>
