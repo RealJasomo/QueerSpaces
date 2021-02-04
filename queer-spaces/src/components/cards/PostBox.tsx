@@ -14,8 +14,12 @@ interface PostBoxProps {
 interface PostBoxState {
     categories: Array<String>,
     category: String | null,
-    content: String ,
-    user: firebase.User | null
+    content: string | null,
+    poll_question?: string | null,
+    poll_options?: Array<string> | null,
+    image_url?: string | null,
+    user: firebase.User | null,
+    ref: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>
 }
 export default class PostBox extends Component<PostBoxProps, PostBoxState>{
     constructor(props: PostBoxProps){
@@ -24,12 +28,27 @@ export default class PostBox extends Component<PostBoxProps, PostBoxState>{
             categories: categories,
             category: '',
             content: '',
-            user: null
+            user: null,
+            ref: firebase.firestore().collection('Posts')
         }
         firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
             if(user)
                 this.setState({user: user});
         })
+    }
+    handleAddNewPost = () =>{
+
+        var payload = { 
+            category: this.state.category,
+            text_content: this.state.content,
+            poll_question: this.state.poll_question,
+            poll_options: this.state.poll_options,
+            image_url: this.state.image_url,
+            user_id: this.state.user?.uid,
+            created: firebase.firestore.Timestamp.now()
+        }
+        Object.keys(payload).forEach(key => {if(payload[key as keyof typeof payload] === null || payload[key as keyof typeof payload] === undefined) delete payload[key as keyof typeof payload]});
+        this.state.ref.add(payload);
     }
     render(){ 
         return(
@@ -64,7 +83,7 @@ export default class PostBox extends Component<PostBoxProps, PostBoxState>{
                     <ImageIcon/>
                 </IconButton>
                 <span className={styles.gap}></span>
-                <IconButton aria-label="send">
+                <IconButton aria-label="send" onClick={this.handleAddNewPost}>
                     <SendIcon className={styles.send}/>
                 </IconButton>
                 </div>

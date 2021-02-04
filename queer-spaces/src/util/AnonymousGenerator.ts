@@ -1,9 +1,8 @@
 import * as icons from '../res/anonymous_icons'
 const names : string[] = [...Object.getOwnPropertyNames(icons).slice(1)]
 export const generate = () : AnonymousInfo => {
-   var index: number = Math.round(names.length*Math.random());
+   var index: number = Math.ceil(names.length*Math.random()) - 1;
    var number: number = Math.round(Math.random()*8999) + 1000;
-   console.log(icons[names[index] as keyof typeof icons])
     return {
         name: `Anonymous ${names[index]} ${number}`,
         username: `@anonymous${names[index]}${number}`,
