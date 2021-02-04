@@ -62,10 +62,11 @@ export default class PostBox extends Component<PostBoxProps, PostBoxState>{
                         <textarea
                         className={styles.content}
                         id="text-content"
-                        maxLength={200}
+                        maxLength={250}
                         placeholder="Enter content"
                         onChange={(event)=>this.setState({content: event.target.value})}
                         />
+                        <div className={`${styles.characterCount} ${(this.state.content && this.state.content?.length > 200)?styles.danger:(this.state.content && this.state.content?.length > 100)?styles.warning:''}`}>{this.state.content?.length}/250 characters</div>
                     </div>
                 </div>
                 <div id="selectors" className={styles.selectors}>

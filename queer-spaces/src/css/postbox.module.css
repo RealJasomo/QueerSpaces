@@ -20,6 +20,8 @@
     margin: 15px auto;
 }
 .contentContainer{
+    display: flex;
+    flex-direction: column;
     width: 100%;
 }
 .content{
@@ -59,11 +61,25 @@
 }
 
 .postText {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
     margin: 15px 15px;
     font-size: 1.3em;
     font-family: Roboto;
     font-weight: 600;
     width: 100%;
+}
+
+.postImage{
+    width: 50%;
+    height: auto;
+    border: 5px black outset;
+    align-self: center;
+}
+
+.postImage:hover{
+    box-shadow: 5px 5px 30px #666;
 }
 
 .likes{
@@ -87,4 +103,20 @@
     font-weight: 600;
     margin-top: 10px;
     color: black;
+}
+
+.characterCount {
+    font-family: Roboto;
+    font-weight: 600;
+    margin-top: 10px;
+    color: black;
+    align-self: flex-end;
+    margin: .5rem 5rem;
+}
+.warning {
+    color:#FFD300;
+}
+
+.danger {
+    color: 	red;
 }

@@ -63,6 +63,7 @@ export default class Post extends Component<PostPropState, PostPropState> {
                 </div> 
                 <div className={styles.postText}>
                     {this.state.text_content}
+                    {this.state.image_url?<img className={styles.postImage} src={this.state.image_url}/>:<></>}
                 </div>
                 <div className={styles.buttons}>
                 <IconButton>
