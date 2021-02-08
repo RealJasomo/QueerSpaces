@@ -7,7 +7,7 @@ import {
   Link
 } from 'react-router-dom'
 import MenuIcon from '@material-ui/icons/Menu'
-import {Login, SignUp, firebase, usersRef, PostBox, PostContext} from './components'
+import {Login, SignUp, firebase, usersRef, PostBox, PostContext, ProtectedRoute, FirebaseAuthContext} from './components'
 import styles from './css/app.module.css'
 import BlankProfile from './res/bp.png'
 
@@ -47,6 +47,7 @@ class App extends Component<any, ApplicationState> {
   render () {
     return (
     <>
+    <FirebaseAuthContext>
     <div id="page-content" className={styles.content}>
     <Router>
     <AppBar position="static" style={{backgroundColor: '#A42197'}}>
@@ -92,8 +93,12 @@ class App extends Component<any, ApplicationState> {
           <SignUp />
         </Route>
       </Switch>
+      <Switch>
+          <ProtectedRoute path="/account" to="/" children={<div>Test</div>} />
+      </Switch>
     </Router>
     </div>
+    </FirebaseAuthContext>
     </>
   );
 }
