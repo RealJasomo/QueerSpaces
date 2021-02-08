@@ -26,37 +26,31 @@ interface PostProp {
 }
 
 interface PostPropState{
-    category: string,
-    text_content?: string | null,
-    poll_question?: string | null,
-    poll_options?: Array<string> | null,
-    image_url?: string | null,
-    user_id?: string | null,
     likes: number,
     dislikes: number,
-    created: firebase.firestore.Timestamp,
     userInfo?: Partial<User>,
     menuOpen: HTMLButtonElement | null,
     liked: boolean,
     disliked: boolean,
+    anonymous?: AnonymousInfo
 }
 export default class Post extends Component<PostProp, PostPropState> {
     constructor(props: PostProp){
         super(props);
         this.state = {
-            ...props,
             likes: this.props.doc.get('like_count') || 0,
             dislikes: this.props.doc.get('dislike_count') || 0,
             menuOpen: null,
             liked: false,
-            disliked: false
+            disliked: false,
+            anonymous: (this.props.user_id)?undefined:generate()
         }
         this.updateUserInfo();
         this.updateRating();
     }
     updateUserInfo = () => {
-        if(this.state.user_id){
-            usersRef.doc(this.state.user_id).onSnapshot((snapshot) => {
+        if(this.props.user_id){
+            usersRef.doc(this.props.user_id).onSnapshot((snapshot) => {
                 if(snapshot.exists)
                     this.setState({userInfo: snapshot.data()})
             })
@@ -87,7 +81,7 @@ export default class Post extends Component<PostProp, PostPropState> {
     }
 
     grabUserName = () => {
-        usernameRef.where('uid','==', this.state.user_id).get()
+        usernameRef.where('uid','==', this.props.user_id).get()
         .then((snap) => {
             if(snap.size > 0)
                 snap.forEach((doc) => {
@@ -152,7 +146,6 @@ export default class Post extends Component<PostProp, PostPropState> {
         }
     }
     render() {
-        var anonymous : AnonymousInfo = generate();
         return (<>
             <Menu
                 id="post-menu"
@@ -166,16 +159,16 @@ export default class Post extends Component<PostProp, PostPropState> {
             </Menu>
             <div className={styles.card}>
                 <div id="profile" className={styles.profile}>
-                    <img style={{backgroundColor: anonymous.color}}src={this.state.userInfo?.photo || anonymous.image || BlankProfile} className = {styles.profileImage} alt="profile"/> 
+                    <img style={{backgroundColor: this.state.anonymous?.color}}src={this.state.userInfo?.photo || this.state.anonymous?.image || BlankProfile} className = {styles.profileImage} alt="profile"/> 
                     <div className={styles.profileInfo}>
-                        <h2 style={{fontFamily:'roboto', color: '#5A5353'}}>{this.state.userInfo?.name || anonymous.name}</h2>
-                        <p style={{fontFamily:'roboto', color: '#D8D8D8'}}>{this.state.userInfo?.username || this.state.userInfo?.email || anonymous.username}</p>
+                        <h2 style={{fontFamily:'roboto', color: '#5A5353'}}>{this.state.userInfo?.name || this.state.anonymous?.name}</h2>
+                        <p style={{fontFamily:'roboto', color: '#D8D8D8'}}>{this.state.userInfo?.username || this.state.userInfo?.email || this.state.anonymous?.username}</p>
                     </div>
-                    <div style={{marginLeft:'auto', marginRight:'15px'}}>{firebase.auth().currentUser?.uid === this.state.user_id ?<IconButton onClick={(event) => this.setState({menuOpen: event.currentTarget})}><MoreHorizIcon className={styles.iconBlack}/></IconButton>:<></>}</div>
+                    <div style={{marginLeft:'auto', marginRight:'15px'}}>{firebase.auth().currentUser?.uid === this.props.user_id ?<IconButton onClick={(event) => this.setState({menuOpen: event.currentTarget})}><MoreHorizIcon className={styles.iconBlack}/></IconButton>:<></>}</div>
                 </div> 
                 <div className={styles.postText}>
-                    {this.state.text_content}
-                    {this.state.image_url?<img className={styles.postImage} src={this.state.image_url}/>:<></>}
+                    {this.props.text_content}
+                    {this.props.image_url?<img className={styles.postImage} src={this.props.image_url}/>:<></>}
                 </div>
                 <div className={styles.buttons}>
                 <IconButton>
@@ -184,19 +177,16 @@ export default class Post extends Component<PostProp, PostPropState> {
                 <div className={styles.likes}>
                     <p className={styles.likeNumber}>{this.state.likes}</p>
                     <IconButton onClick={this.handleLike}>
-                    {this.state.liked?<ThumbUpIcon className={styles.iconBlack}/>:<ThumbUpOutlinedIcon className={styles.iconBlack}/>}
+                    {this.state.liked?<ThumbUpIcon className={styles.send}/>:<ThumbUpOutlinedIcon className={styles.iconBlack}/>}
                     </IconButton>
                 </div>
                 <div className={styles.likes}>
                     <p className={styles.likeNumber}>{this.state.dislikes}</p>
                     <IconButton onClick={this.handleDislike}>
-                    {this.state.disliked?<ThumbDownIcon className={styles.iconBlack}/>:<ThumbDownOutlinedIcon className={styles.iconBlack}/>}
+                    {this.state.disliked?<ThumbDownIcon className={styles.send}/>:<ThumbDownOutlinedIcon className={styles.iconBlack}/>}
                     </IconButton>
                 </div>
                 </div>
-            </div>
-            <div>
-               <pre>{JSON.stringify(this.props)}</pre>
             </div>
             </>)
     }
