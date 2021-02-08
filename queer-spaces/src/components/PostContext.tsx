@@ -36,7 +36,7 @@ interface PostContextState {
                 onChange={(_, val: string | null)=>this.setState({category: val})}
                 />
                 {this.state.documentSnapshot.filter(doc => this.state.category?(this.state.category === doc.get('category')):true).map((doc) => {
-                     return <Post  category={doc.get('category')} text_content={doc.get('text_content')} poll_question={doc.get('poll_question')} poll_options={doc.get('poll_options')} image_url={doc.get('image_url')} user_id={doc.get('user_id')} created={doc.get('created')} key={doc.id} />
+                     return <Post doc={doc} category={doc.get('category')} text_content={doc.get('text_content')} poll_question={doc.get('poll_question')} poll_options={doc.get('poll_options')} image_url={doc.get('image_url')} user_id={doc.get('user_id')} created={doc.get('created')} key={doc.id} />
                 })}
             </div>
         )

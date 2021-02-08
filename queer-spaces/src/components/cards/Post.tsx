@@ -4,7 +4,9 @@ import { IconButton, Menu, MenuItem } from '@material-ui/core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCommentDots } from '@fortawesome/free-regular-svg-icons'
 import ThumbUpOutlinedIcon from '@material-ui/icons/ThumbUpOutlined'
+import ThumbUpIcon from '@material-ui/icons/ThumbUp'
 import ThumbDownOutlinedIcon from '@material-ui/icons/ThumbDownOutlined'
+import ThumbDownIcon from '@material-ui/icons/ThumbDown'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
 import BlankProfile from '../../res/bp.png'
 import styles from '../../css/postbox.module.css'
@@ -19,7 +21,8 @@ interface PostProp {
     image_url?: string | null,
     user_id?: string | null,
     created: firebase.firestore.Timestamp,
-    userInfo?: Partial<User>
+    userInfo?: Partial<User>,
+    doc: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>
 }
 
 interface PostPropState{
@@ -29,18 +32,27 @@ interface PostPropState{
     poll_options?: Array<string> | null,
     image_url?: string | null,
     user_id?: string | null,
+    likes: number,
+    dislikes: number,
     created: firebase.firestore.Timestamp,
     userInfo?: Partial<User>,
     menuOpen: HTMLButtonElement | null,
+    liked: boolean,
+    disliked: boolean,
 }
 export default class Post extends Component<PostProp, PostPropState> {
-    constructor(props: PostPropState){
+    constructor(props: PostProp){
         super(props);
         this.state = {
             ...props,
-            menuOpen: null
+            likes: this.props.doc.get('like_count') || 0,
+            dislikes: this.props.doc.get('dislike_count') || 0,
+            menuOpen: null,
+            liked: false,
+            disliked: false
         }
         this.updateUserInfo();
+        this.updateRating();
     }
     updateUserInfo = () => {
         if(this.state.user_id){
@@ -51,6 +63,29 @@ export default class Post extends Component<PostProp, PostPropState> {
             this.grabUserName();
         }
     }
+
+    updateRating = async () => {
+        var user = firebase.auth().currentUser;
+        var liked = false, disliked = false;
+        if(user != null){
+            var ref = this.props.doc.ref;
+            await ref.collection('likes').doc(user.uid).get().then(snapshot => {
+                if(snapshot.exists){
+                    liked = true;
+                }
+            })
+            await ref.collection('dislikes').doc(user.uid).get().then(snapshot => {
+                if(snapshot.exists){
+                    disliked = true;
+                }
+            })
+            this.setState({
+                liked: liked,
+                disliked: disliked
+            })
+        }
+    }
+
     grabUserName = () => {
         usernameRef.where('uid','==', this.state.user_id).get()
         .then((snap) => {
@@ -64,6 +99,57 @@ export default class Post extends Component<PostProp, PostPropState> {
                     })
                 })
         })
+    }
+    handleLike = async () => {
+        if(this.state.disliked)
+            this.handleDislike();
+        var updateLikes = () =>  this.setState({
+            likes: this.props.doc.get('like_count')
+        });
+        var user = firebase.auth().currentUser;
+        if(user != null){
+            var ref = this.props.doc.ref;
+            var doc_ref = ref.collection('likes').doc(user.uid);
+            doc_ref.get().then(snapshot => {
+                if(snapshot.exists){
+                    doc_ref.delete();
+                    ref.update({
+                        like_count: firebase.firestore.FieldValue.increment(-1)
+                    }).then(updateLikes).then(this.updateRating);
+                }else{
+                    doc_ref.set({ liked: true})
+                    ref.update({
+                        like_count: firebase.firestore.FieldValue.increment(1)
+                    }).then(updateLikes).then(this.updateRating);
+                }
+            })
+        }
+        ;
+    }
+    handleDislike = () => {
+        if(this.state.liked)
+            this.handleLike();
+        var updateDislikes = () =>  this.setState({
+            dislikes: this.props.doc.get('dislike_count')
+        });
+        var user = firebase.auth().currentUser;
+        if(user != null){
+            var ref = this.props.doc.ref;
+            var doc_ref = ref.collection('dislikes').doc(user.uid);
+            doc_ref.get().then(snapshot => {
+                if(snapshot.exists){
+                    doc_ref.delete();
+                    ref.update({
+                        dislike_count: firebase.firestore.FieldValue.increment(-1)
+                    }).then(updateDislikes).then(this.updateRating);
+                }else{
+                    doc_ref.set({ disliked: true})
+                    ref.update({
+                        dislike_count: firebase.firestore.FieldValue.increment(1)
+                    }).then(updateDislikes).then(this.updateRating);
+                }
+            })
+        }
     }
     render() {
         var anonymous : AnonymousInfo = generate();
@@ -96,15 +182,15 @@ export default class Post extends Component<PostProp, PostPropState> {
                     <FontAwesomeIcon icon={faCommentDots}  className={styles.iconBlack}/>
                 </IconButton>
                 <div className={styles.likes}>
-                    <p className={styles.likeNumber}>0</p>
-                    <IconButton>
-                        <ThumbUpOutlinedIcon className={styles.iconBlack}/>
+                    <p className={styles.likeNumber}>{this.state.likes}</p>
+                    <IconButton onClick={this.handleLike}>
+                    {this.state.liked?<ThumbUpIcon className={styles.iconBlack}/>:<ThumbUpOutlinedIcon className={styles.iconBlack}/>}
                     </IconButton>
                 </div>
                 <div className={styles.likes}>
-                    <p className={styles.likeNumber}>0</p>
-                    <IconButton>
-                        <ThumbDownOutlinedIcon className={styles.iconBlack}/>
+                    <p className={styles.likeNumber}>{this.state.dislikes}</p>
+                    <IconButton onClick={this.handleDislike}>
+                    {this.state.disliked?<ThumbDownIcon className={styles.iconBlack}/>:<ThumbDownOutlinedIcon className={styles.iconBlack}/>}
                     </IconButton>
                 </div>
                 </div>
