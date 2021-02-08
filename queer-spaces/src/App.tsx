@@ -7,7 +7,7 @@ import {
   Link
 } from 'react-router-dom'
 import MenuIcon from '@material-ui/icons/Menu'
-import {Login, SignUp, firebase, usersRef, PostBox, PostContext, ProtectedRoute, FirebaseAuthContext} from './components'
+import {Login, SignUp, Profile, Account, firebase, usersRef, PostBox, PostContext, ProtectedRoute, FirebaseAuthContext} from './components'
 import styles from './css/app.module.css'
 import BlankProfile from './res/bp.png'
 
@@ -69,8 +69,8 @@ class App extends Component<any, ApplicationState> {
             keepMounted
             open={!!this.state.profileMenuOpen}
             onClose={() => this.setState({profileMenuOpen: null})}>
-            <MenuItem>Profile</MenuItem>
-            <MenuItem>My account</MenuItem>
+            <MenuItem component={Link} to={`/profile/${this.state.user?.uid||''}`}>Profile</MenuItem>
+            <MenuItem component={Link} to="/account" className={styles.link}>My account</MenuItem>
             <MenuItem onClick={this.handleSignout}>Sign out</MenuItem>
           </Menu>
         </>}
@@ -94,7 +94,10 @@ class App extends Component<any, ApplicationState> {
         </Route>
       </Switch>
       <Switch>
-          <ProtectedRoute path="/account" to="/" children={<div>Test</div>} />
+          <ProtectedRoute path="/account" to="/" children={<Account/>} />
+      </Switch>
+      <Switch>
+        <Route path="/profile/:id" component={Profile}/>
       </Switch>
     </Router>
     </div>
