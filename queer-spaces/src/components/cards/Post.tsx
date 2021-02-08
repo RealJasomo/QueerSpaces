@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { firebase, usersRef, usernameRef } from '../'
-import { IconButton, Menu, MenuItem } from '@material-ui/core'
+import { Button, IconButton, Menu, MenuItem, Modal } from '@material-ui/core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCommentDots } from '@fortawesome/free-regular-svg-icons'
 import ThumbUpOutlinedIcon from '@material-ui/icons/ThumbUpOutlined'
@@ -32,7 +32,8 @@ interface PostPropState{
     menuOpen: HTMLButtonElement | null,
     liked: boolean,
     disliked: boolean,
-    anonymous?: AnonymousInfo
+    anonymous?: AnonymousInfo,
+    delete: boolean
 }
 export default class Post extends Component<PostProp, PostPropState> {
     constructor(props: PostProp){
@@ -43,7 +44,8 @@ export default class Post extends Component<PostProp, PostPropState> {
             menuOpen: null,
             liked: false,
             disliked: false,
-            anonymous: (this.props.user_id)?undefined:generate()
+            anonymous: (this.props.user_id)?undefined:generate(),
+            delete: false
         }
         this.updateUserInfo();
         this.updateRating();
@@ -118,8 +120,14 @@ export default class Post extends Component<PostProp, PostPropState> {
                 }
             })
         }
-        ;
     }
+    
+    handleDeleteClose = ()=>{this.setState({delete: false, menuOpen: null})};
+
+    handleDelete = () => {
+        this.props.doc.ref.delete();
+    }
+
     handleDislike = () => {
         if(this.state.liked)
             this.handleLike();
@@ -147,47 +155,61 @@ export default class Post extends Component<PostProp, PostPropState> {
     }
     render() {
         return (<>
-            <Menu
-                id="post-menu"
-                style={{top: '40px'}}
-                anchorEl={this.state.menuOpen}
-                keepMounted
-                open={!!this.state.menuOpen}
-                onClose={() => this.setState({menuOpen: null})}>
-                <MenuItem>Edit</MenuItem>
-                <MenuItem>Delete</MenuItem>
-            </Menu>
-            <div className={styles.card}>
-                <div id="profile" className={styles.profile}>
-                    <img style={{backgroundColor: this.state.anonymous?.color}}src={this.state.userInfo?.photo || this.state.anonymous?.image || BlankProfile} className = {styles.profileImage} alt="profile"/> 
-                    <div className={styles.profileInfo}>
-                        <h2 style={{fontFamily:'roboto', color: '#5A5353'}}>{this.state.userInfo?.name || this.state.anonymous?.name}</h2>
-                        <p style={{fontFamily:'roboto', color: '#D8D8D8'}}>{this.state.userInfo?.username || this.state.userInfo?.email || this.state.anonymous?.username}</p>
+                <Modal
+                open={this.state.delete}
+                onClose={this.handleDeleteClose}
+                aria-labelledby="modal-title"
+                >
+                    <div className={styles.paper}>
+                        <h1 id="modal-title">Are you sure you want to delete this post?</h1>
+                        <p style={{margin: '1.5rem'}}>Warning: this action cannot be undone</p>
+                        <div className={styles.modalButtons}>
+                            <Button variant="contained" color="secondary" className={styles.marginRight} onClick={this.handleDeleteClose}>close</Button>
+                            <Button variant="contained" color="primary" onClick={this.handleDelete}>confirm</Button>
+                        </div>
                     </div>
-                    <div style={{marginLeft:'auto', marginRight:'15px'}}>{firebase.auth().currentUser?.uid === this.props.user_id ?<IconButton onClick={(event) => this.setState({menuOpen: event.currentTarget})}><MoreHorizIcon className={styles.iconBlack}/></IconButton>:<></>}</div>
-                </div> 
-                <div className={styles.postText}>
-                    {this.props.text_content}
-                    {this.props.image_url?<img className={styles.postImage} src={this.props.image_url}/>:<></>}
-                </div>
-                <div className={styles.buttons}>
-                <IconButton>
-                    <FontAwesomeIcon icon={faCommentDots}  className={styles.iconBlack}/>
-                </IconButton>
-                <div className={styles.likes}>
-                    <p className={styles.likeNumber}>{this.state.likes}</p>
-                    <IconButton onClick={this.handleLike}>
-                    {this.state.liked?<ThumbUpIcon className={styles.send}/>:<ThumbUpOutlinedIcon className={styles.iconBlack}/>}
+                </Modal>
+                <Menu
+                    id="post-menu"
+                    style={{top: '40px'}}
+                    anchorEl={this.state.menuOpen}
+                    keepMounted
+                    open={!!this.state.menuOpen}
+                    onClose={() => this.setState({menuOpen: null})}>
+                    <MenuItem>Edit</MenuItem>
+                    <MenuItem onClick={()=>{this.setState({delete: true})}}>Delete</MenuItem>
+                </Menu>
+                <div className={styles.card}>
+                    <div id="profile" className={styles.profile}>
+                        <img style={{backgroundColor: this.state.anonymous?.color}}src={this.state.userInfo?.photo || this.state.anonymous?.image || BlankProfile} className = {styles.profileImage} alt="profile"/> 
+                        <div className={styles.profileInfo}>
+                            <h2 style={{fontFamily:'roboto', color: '#5A5353'}}>{this.state.userInfo?.name || this.state.anonymous?.name}</h2>
+                            <p style={{fontFamily:'roboto', color: '#D8D8D8'}}>{this.state.userInfo?.username || this.state.userInfo?.email || this.state.anonymous?.username}</p>
+                        </div>
+                        <div style={{marginLeft:'auto', marginRight:'15px'}}>{firebase.auth().currentUser?.uid === this.props.user_id ?<IconButton onClick={(event) => this.setState({menuOpen: event.currentTarget})}><MoreHorizIcon className={styles.iconBlack}/></IconButton>:<></>}</div>
+                    </div> 
+                    <div className={styles.postText}>
+                        {this.props.text_content}
+                        {this.props.image_url?<img className={styles.postImage} src={this.props.image_url}/>:<></>}
+                    </div>
+                    <div className={styles.buttons}>
+                    <IconButton>
+                        <FontAwesomeIcon icon={faCommentDots}  className={styles.iconBlack}/>
                     </IconButton>
+                    <div className={styles.likes}>
+                        <p className={styles.likeNumber}>{this.state.likes}</p>
+                        <IconButton onClick={this.handleLike}>
+                        {this.state.liked?<ThumbUpIcon className={styles.send}/>:<ThumbUpOutlinedIcon className={styles.iconBlack}/>}
+                        </IconButton>
+                    </div>
+                    <div className={styles.likes}>
+                        <p className={styles.likeNumber}>{this.state.dislikes}</p>
+                        <IconButton onClick={this.handleDislike}>
+                        {this.state.disliked?<ThumbDownIcon className={styles.send}/>:<ThumbDownOutlinedIcon className={styles.iconBlack}/>}
+                        </IconButton>
+                    </div>
+                    </div>
                 </div>
-                <div className={styles.likes}>
-                    <p className={styles.likeNumber}>{this.state.dislikes}</p>
-                    <IconButton onClick={this.handleDislike}>
-                    {this.state.disliked?<ThumbDownIcon className={styles.send}/>:<ThumbDownOutlinedIcon className={styles.iconBlack}/>}
-                    </IconButton>
-                </div>
-                </div>
-            </div>
             </>)
     }
 }

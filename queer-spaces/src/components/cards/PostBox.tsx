@@ -37,7 +37,8 @@ export default class PostBox extends Component<PostBoxProps, PostBoxState>{
         })
     }
     handleAddNewPost = () =>{
-
+        if(this.state.content?.length == 0 && !(this.state.content||this.state.image_url||this.state.poll_question))
+            return;
         var payload = { 
             category: this.state.category,
             text_content: this.state.content,
