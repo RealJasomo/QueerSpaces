@@ -183,7 +183,7 @@ export default class Post extends Component<PostProp, PostPropState> {
                     <div id="profile" className={styles.profile}>
                         <img style={{backgroundColor: this.state.anonymous?.color}}src={this.state.userInfo?.photo || this.state.anonymous?.image || BlankProfile} className = {styles.profileImage} alt="profile"/> 
                         <div className={styles.profileInfo}>
-                            <h2 style={{fontFamily:'roboto', color: '#5A5353'}}>{this.state.userInfo?.name || this.state.anonymous?.name}</h2>
+                            <h2 style={{fontFamily:'roboto', color: '#5A5353'}}>{this.state.userInfo?.name || this.state.anonymous?.name || 'No name'}</h2>
                             <p style={{fontFamily:'roboto', color: '#D8D8D8'}}>{this.state.userInfo?.username || this.state.userInfo?.email || this.state.anonymous?.username}</p>
                         </div>
                         <div style={{marginLeft:'auto', marginRight:'15px'}}>{firebase.auth().currentUser?.uid === this.props.user_id ?<IconButton onClick={(event) => this.setState({menuOpen: event.currentTarget})}><MoreHorizIcon className={styles.iconBlack}/></IconButton>:<></>}</div>
