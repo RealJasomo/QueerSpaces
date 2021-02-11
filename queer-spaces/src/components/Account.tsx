@@ -52,6 +52,10 @@ export default class Account extends Component<{}, AccountState<IState>> {
     handleUsernameModalClose = () => this.setState({openUsername: false});
     handleUpdatePassword = () => {};
     handleUpdateUsername = () => {
+        if(this.state.newUsername.length < 3){
+            this.setState({error: "Username must be atleast 3 characters long"});
+            return;
+        }
         var ref: firebase.firestore.DocumentReference<firebase.firestore.DocumentData> = usernameRef.doc(this.state.newUsername);
         var batch = firebase.firestore().batch();
         batch.set(ref, {
@@ -111,7 +115,9 @@ export default class Account extends Component<{}, AccountState<IState>> {
                 </Modal>
                 <div className={styles.accountArea}>
                     <h1>Modify Your Account:</h1>
+                    <p style={{backgroundColor:'rgba(255,0,0,0.5)', color:'black'}}>{this.state.error}</p>
                     <hr/>
+                    {this.state.user?.providerData[0]?.providerId ==='password'&&<>
                     <h3>Update Password:</h3>
                     <div className={styles.updateArea}>
                     <FormControl className={styles.text}  variant="outlined">
@@ -158,9 +164,10 @@ export default class Account extends Component<{}, AccountState<IState>> {
                             labelWidth={70}
                         />
                     </FormControl>
-                    <Button style={{width:'50%', alignSelf: 'flex-end'}} variant="contained" color="primary" onClick={()=>this.setState({openPassword: true})}>Update Password</Button>
+                    <Button className={styles.button} variant="contained" onClick={()=>this.setState({openPassword: true})}>Update Password</Button>
                     </div>
                     <hr/>
+                    </>}
                     <div>
                         <h3>Update Username:</h3>
                         <div className={styles.updateArea}>
@@ -175,7 +182,7 @@ export default class Account extends Component<{}, AccountState<IState>> {
                                 labelWidth={70}
                             />
                         </FormControl>
-                        <Button style={{width:'50%', alignSelf: 'flex-end'}} variant="contained" color="primary" onClick={()=>this.setState({openUsername: true})}>Update Username</Button>
+                        <Button className={styles.button} variant="contained" onClick={()=>this.setState({openUsername: true})}>Update Username</Button>
                         </div>
                     </div> 
                 </div>

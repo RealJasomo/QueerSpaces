@@ -13,7 +13,13 @@
 .text{
     margin: 15px 0 !important;
 }
-
+.button {
+    width:50%;
+    align-self: flex-end;
+    background-color: #A42197 !important;
+    color: white !important;
+    border-radius: 5px;
+}
 .paper{
     position: absolute;
     font-family: Roboto;

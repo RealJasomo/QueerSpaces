@@ -8,9 +8,11 @@ import ImageIcon from '@material-ui/icons/Image'
 import SendIcon from '@material-ui/icons/Send'
 import {firebase} from '../';
 import {categories} from '../../util/Constants'
+
 interface PostBoxProps {
 
 }
+
 interface PostBoxState {
     categories: Array<String>,
     category: String | null,
@@ -21,7 +23,9 @@ interface PostBoxState {
     user: firebase.User | null,
     ref: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>
 }
+
 export default class PostBox extends Component<PostBoxProps, PostBoxState>{
+    
     constructor(props: PostBoxProps){
         super(props);
         this.state = {
@@ -31,6 +35,7 @@ export default class PostBox extends Component<PostBoxProps, PostBoxState>{
             user: null,
             ref: firebase.firestore().collection('Posts')
         }
+
         firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
             if(user)
                 this.setState({user: user});
@@ -49,7 +54,6 @@ export default class PostBox extends Component<PostBoxProps, PostBoxState>{
             created: firebase.firestore.Timestamp.now()
         }
         Object.keys(payload).forEach(key => {if(payload[key as keyof typeof payload] === null || payload[key as keyof typeof payload] === undefined) delete payload[key as keyof typeof payload]});
-        this.state.ref.add(payload);
     }
     render(){ 
         return(
