@@ -10,9 +10,11 @@ import { isFunctionDeclaration } from 'typescript'
 interface IState{
     openPassword: boolean,
     newPassword: string,
+    oldPassword: string,
     confirmPassword: string,
     showNewPassword: boolean,
     showConfirmPassword: boolean,
+    showOldPassword: boolean,
     error: string,
     user: firebase.User | null,
     username: string | null,
@@ -28,9 +30,11 @@ export default class Account extends Component<{}, AccountState<IState>> {
         this.state = {
             openPassword: false,
             newPassword: '',
+            oldPassword: '',
             confirmPassword: '',
             showNewPassword: false,
             showConfirmPassword: false,
+            showOldPassword: false,
             error: '',
             user: firebase.auth().currentUser,
             username: null,
@@ -49,8 +53,22 @@ export default class Account extends Component<{}, AccountState<IState>> {
         })
     }
     handlePasswordModalClose = () => this.setState({openPassword: false});
+    
     handleUsernameModalClose = () => this.setState({openUsername: false});
-    handleUpdatePassword = () => {};
+    
+    handleUpdatePassword = () => {
+        var credential: firebase.auth.AuthCredential = firebase.auth.EmailAuthProvider.credential(this.state.user?.email||"",this.state.oldPassword);
+        this.state.user?.reauthenticateWithCredential(credential).then(_ => {
+            this.state.user?.updatePassword(this.state.newPassword)
+            .then(_ => this.setState({newPassword: "", confirmPassword: "", oldPassword:""}))
+            .catch(err => {
+                this.setState({error: "Unable to update password"});
+                console.log(err);
+            });
+        }).catch(err => this.setState({error: "Invalid original password"}))
+        .finally(this.handlePasswordModalClose);
+    }
+
     handleUpdateUsername = () => {
         if(this.state.newUsername.length < 3){
             this.setState({error: "Username must be atleast 3 characters long"});
@@ -75,8 +93,11 @@ export default class Account extends Component<{}, AccountState<IState>> {
         });
         
     };
+    
     handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>)  => event.preventDefault();
+    
     handleClickShowPassword = <K extends keyof IState>(prop: K) => {this.setState({...this.state, [prop]: !this.state[prop]} as AccountState<IState>)}
+   
     handleChange = <K extends keyof IState>(prop: K) => 
         async (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
             await this.setState({...this.state,[prop]: event.target.value} as AccountState<IState>);
@@ -120,6 +141,28 @@ export default class Account extends Component<{}, AccountState<IState>> {
                     {this.state.user?.providerData[0]?.providerId ==='password'&&<>
                     <h3>Update Password:</h3>
                     <div className={styles.updateArea}>
+                    <FormControl className={styles.text}  variant="outlined">
+                        <InputLabel htmlFor="oldpassword">Old Password</InputLabel>
+                        <OutlinedInput
+                            id="oldpassword"
+                            type={this.state.showOldPassword ? 'text' : 'password'}
+                            value={this.state.oldPassword}
+                            onChange={this.handleChange('oldPassword')}
+                            endAdornment={
+                            <InputAdornment position="end">
+                                <IconButton
+                                aria-label="toggle password visibility"
+                                onClick={() => {this.handleClickShowPassword('showOldPassword')}}
+                                onMouseDown={this.handleMouseDownPassword}
+                                edge="end"
+                                >
+                                {this.state.showOldPassword ? <Visibility /> : <VisibilityOff />}
+                                </IconButton>
+                            </InputAdornment>
+                            }
+                            labelWidth={70}
+                        />
+                    </FormControl>
                     <FormControl className={styles.text}  variant="outlined">
                         <InputLabel htmlFor="newpassword">New Password</InputLabel>
                         <OutlinedInput
