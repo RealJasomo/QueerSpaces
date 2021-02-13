@@ -75,23 +75,24 @@ export default class Account extends Component<{}, AccountState<IState>> {
             return;
         }
         var ref: firebase.firestore.DocumentReference<firebase.firestore.DocumentData> = usernameRef.doc(this.state.newUsername);
-        var batch = firebase.firestore().batch();
-        batch.set(ref, {
-            uid: this.state.user?.uid
-        })
-        if(this.state.username)
-        batch.delete(usernameRef.doc(this.state.username.substr(1)))
-
-        batch.commit()
-        .then(()=>{
+        firebase.firestore().runTransaction((transaction: firebase.firestore.Transaction) => {
+            return transaction.get(ref).then((doc: firebase.firestore.DocumentSnapshot<firebase.firestore.DocumentData>) => {
+                if (doc.exists)
+                    throw 'The requested username has been taken'
+                else 
+                transaction.set(ref, {
+                    uid: this.state.user?.uid
+                });
+                if(this.state.username)
+                    transaction.delete(usernameRef.doc(this.state.username));
+            });
+        }).then(() =>{
             this.grabUserName();
             this.handleUsernameModalClose();
-        })
-        .catch(err => {
-            console.log(err);
-            this.setState({error: "Error in updating username"});
+        }).catch((error: string) => {
+            this.setState({error: error})
+            this.handleUsernameModalClose();
         });
-        
     };
     
     handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>)  => event.preventDefault();
