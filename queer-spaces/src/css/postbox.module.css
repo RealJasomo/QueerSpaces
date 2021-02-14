@@ -143,3 +143,67 @@
 .marginRight{
     margin-right: 15px !important;
 }
+
+.modal{
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%,-50%);
+    margin: 0 auto;
+    padding: 15px;
+    width: 70vw;
+    background-color: white;
+    box-shadow: 10px 10px 30px #666;
+    font-family: Roboto;
+    text-align: center;
+    border-radius: 25px;
+}
+
+.hr{
+    line-height: 1em;
+    position: relative;
+    outline: 0;
+    border: 0;
+    color: black;
+    text-align: center;
+    height: 1.5em;
+    opacity: 0.5;
+}
+.hr:before{
+    content: '';
+    background: linear-gradient(to right, transparent, #818078, transparent);
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+}
+
+.hr:after{
+    content: attr(data-content);
+    text-transform: uppercase;
+    font-weight: 600;
+    position: relative;
+    display: inline-block;
+    color: black;
+    padding: 0 0.5em;
+    line-height: 1.5em;
+    color: black;
+    background-color: white;
+}
+
+.button {
+    margin-top: 30px;
+    width:50%;
+    align-self: flex-end;
+    background-color: #A42197 !important;
+    color: white !important;
+    border-radius: 5px;
+}
+
+.postboxImage{
+    width: 100px;
+    height: 100%;
+    box-shadow: 5px 4px 10px rgba(0, 0, 0, 0.2);
+    opacity: 70%;
+}
