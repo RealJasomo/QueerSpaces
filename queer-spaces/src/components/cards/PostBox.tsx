@@ -21,7 +21,8 @@ interface PostBoxState {
     poll_options?: Array<string> | null,
     image_url?: string | null,
     user: firebase.User | null,
-    ref: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>
+    ref: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>,
+    profileImage: string | null
 }
 
 export default class PostBox extends Component<PostBoxProps, PostBoxState>{
@@ -33,12 +34,18 @@ export default class PostBox extends Component<PostBoxProps, PostBoxState>{
             category: '',
             content: '',
             user: null,
-            ref: firebase.firestore().collection('Posts')
+            ref: firebase.firestore().collection('Posts'),
+            profileImage: null
         }
 
         firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
-            if(user)
+            if(user){
                 this.setState({user: user});
+                firebase.firestore().collection('Users').doc(user.uid).get().then((snapshot) =>{
+                    if(snapshot.exists)
+                        this.setState({profileImage: snapshot.get('photo')});
+                })
+            }
         })
     }
     handleAddNewPost = () =>{
@@ -54,6 +61,7 @@ export default class PostBox extends Component<PostBoxProps, PostBoxState>{
             created: firebase.firestore.Timestamp.now()
         }
         Object.keys(payload).forEach(key => {if(payload[key as keyof typeof payload] === null || payload[key as keyof typeof payload] === undefined) delete payload[key as keyof typeof payload]});
+        this.state.ref.add(payload);
     }
     render(){ 
         return(
@@ -61,7 +69,7 @@ export default class PostBox extends Component<PostBoxProps, PostBoxState>{
             <div className={styles.card}>
                 <div className={styles.upper}>
                     <div id="profile">
-                        <img src={this.state.user?.photoURL || BlankProfile} className = {styles.profileImage} alt="profile"/> 
+                        <img src={this.state.profileImage || BlankProfile} className = {styles.profileImage} alt="profile"/> 
                     </div> 
                     <div id="content" className={styles.contentContainer}>
                         <textarea

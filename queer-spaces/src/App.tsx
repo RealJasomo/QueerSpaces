@@ -14,7 +14,8 @@ import BlankProfile from './res/bp.png'
 interface ApplicationState {
   loggedIn: boolean,
   profileMenuOpen: HTMLImageElement | null,
-  user: firebase.User | null
+  user: firebase.User | null,
+  photoURL: string | null
 }
 
 class App extends Component<any, ApplicationState> {
@@ -23,18 +24,35 @@ class App extends Component<any, ApplicationState> {
     this.state = {
       loggedIn: false,
       profileMenuOpen: null,
-      user: null
+      user: null,
+      photoURL: null
     }
     firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
       if(user){
         const {uid, photoURL, phoneNumber, displayName, email, isAnonymous} = user;
-        if(!isAnonymous)
-        usersRef.doc(uid).set({
-          photo: photoURL,
-          phone: phoneNumber,
-          name: displayName,
-          email: email
-        });
+        if(!isAnonymous){
+        var ref = usersRef.doc(uid);
+        ref.get().then((snapshot) =>{
+          if(snapshot.exists){
+            ref.set({
+              photo: photoURL || snapshot.get('photo')
+            },{merge: true}).then(()=>this.setState({photoURL: snapshot.get('photo')}));
+          }else{
+            ref.set({
+              photo: photoURL,
+              phone: phoneNumber,
+              name: displayName,
+              email: email
+            });
+          }
+        })
+      }
+        // .set({
+        //   photo: photoURL,
+        //   phone: phoneNumber,
+        //   name: displayName,
+        //   email: email
+        // }, {merge: true});
         this.setState({loggedIn: true, user: user});
       }else{
         this.setState({loggedIn: false, user: null});
@@ -61,7 +79,7 @@ class App extends Component<any, ApplicationState> {
       {!this.state.loggedIn ? 
         <Button color="inherit" className={styles.link} component={Link} to="/login">Login</Button> : 
         <>
-          <img src={this.state.user?.photoURL|| BlankProfile} className = {styles.profileImage} alt="profile" onClick={(event) => this.setState({profileMenuOpen: event.currentTarget})}/> 
+          <img src={this.state.photoURL || BlankProfile} className = {styles.profileImage} alt="profile" onClick={(event) => this.setState({profileMenuOpen: event.currentTarget})}/> 
           <Menu
             id="profile-menu"
             style={{top: '40px'}}
@@ -69,8 +87,8 @@ class App extends Component<any, ApplicationState> {
             keepMounted
             open={!!this.state.profileMenuOpen}
             onClose={() => this.setState({profileMenuOpen: null})}>
-            <MenuItem component={Link} to={`/profile/${this.state.user?.uid||''}`}>Profile</MenuItem>
-            <MenuItem component={Link} to="/account" className={styles.link}>My account</MenuItem>
+            <MenuItem component={Link} to={`/profile/${this.state.user?.uid||''}`} onClick={()=>this.setState({profileMenuOpen: null})}>Profile</MenuItem>
+            <MenuItem component={Link} to="/account" className={styles.link} onClick={()=>this.setState({profileMenuOpen: null})}>My account</MenuItem>
             <MenuItem onClick={this.handleSignout}>Sign out</MenuItem>
           </Menu>
         </>}

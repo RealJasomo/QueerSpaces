@@ -1,0 +1,111 @@
+.header{
+    width: 100%;
+    height: 20vh;
+}
+
+.profilePicture {
+    border-radius: 50%;
+    width: 15vh;
+    height: 15vh;
+    border: 6px solid white;
+    margin: 10vh 0 0 30px;
+    box-shadow: 0 20px 30px -15px rgba(0, 0, 0, 0.3);
+}
+
+.profileInformation {
+    font-family: Roboto;
+    margin-top: 4em;
+    margin-left: 30px;
+}
+
+.profileCard{
+    box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
+    padding-bottom: 2rem;
+    margin-bottom: 1rem;
+}
+
+.editBanner{
+    position: absolute !important;
+    background-color: white !important;
+    color: black i !important;
+    border: 3px solid #D8D8D8 !important;
+    right: 15px !important;
+    margin-top: 15px !important;
+}
+
+.editBanner:hover{
+    background-color: #D8D8D8;
+}
+
+.modal{
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%,-50%);
+    margin: 0 auto;
+    padding: 15px;
+    width: 70vw;
+    background-color: white;
+    box-shadow: 10px 10px 30px #666;
+    font-family: Roboto;
+    text-align: center;
+    border-radius: 25px;
+}
+
+.hr{
+    line-height: 1em;
+    position: relative;
+    outline: 0;
+    border: 0;
+    color: black;
+    text-align: center;
+    height: 1.5em;
+    opacity: 0.5;
+}
+.hr:before{
+    content: '';
+    background: linear-gradient(to right, transparent, #818078, transparent);
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+}
+
+.hr:after{
+    content: attr(data-content);
+    text-transform: uppercase;
+    font-weight: 600;
+    position: relative;
+    display: inline-block;
+    color: black;
+    padding: 0 0.5em;
+    line-height: 1.5em;
+    color: black;
+    background-color: white;
+}
+
+.button {
+    margin-top: 30px;
+    width:50%;
+    align-self: flex-end;
+    background-color: #A42197 !important;
+    color: white !important;
+    border-radius: 5px;
+}
+
+.characterCount {
+    font-family: Roboto;
+    font-weight: 600;
+    margin-top: 10px;
+    color: black;
+    float: right;
+    margin: .5rem .5rem;
+}
+.warning {
+    color:#FFD300;
+}
+
+.danger {
+    color: 	red;
+}

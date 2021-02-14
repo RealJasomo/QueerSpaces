@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import { Modal, Button, FormControl, InputLabel, OutlinedInput, InputAdornment, IconButton } from '@material-ui/core'
-import { firebase, usersRef, usernameRef } from './'
+import { firebase, usernameRef } from './'
 
 import Visibility from '@material-ui/icons/Visibility'
 import VisibilityOff from '@material-ui/icons/VisibilityOff'
 import styles from '../css/account.module.css'
-import { isFunctionDeclaration } from 'typescript'
+
 
 interface IState{
     openPassword: boolean,
@@ -78,7 +78,7 @@ export default class Account extends Component<{}, AccountState<IState>> {
         firebase.firestore().runTransaction((transaction: firebase.firestore.Transaction) => {
             return transaction.get(ref).then((doc: firebase.firestore.DocumentSnapshot<firebase.firestore.DocumentData>) => {
                 if (doc.exists)
-                    throw 'The requested username has been taken'
+                    throw String('The requested username has been taken')
                 else 
                 transaction.set(ref, {
                     uid: this.state.user?.uid

@@ -125,7 +125,7 @@ export default class Post extends Component<PostProp, PostPropState> {
     handleDeleteClose = ()=>{this.setState({delete: false, menuOpen: null})};
 
     handleDelete = () => {
-        this.props.doc.ref.delete();
+        this.props.doc.ref.delete().then(this.handleDeleteClose);
     }
 
     handleDislike = () => {
@@ -181,7 +181,7 @@ export default class Post extends Component<PostProp, PostPropState> {
                 </Menu>
                 <div className={styles.card}>
                     <div id="profile" className={styles.profile}>
-                        <img style={{backgroundColor: this.state.anonymous?.color}}src={this.state.userInfo?.photo || this.state.anonymous?.image || BlankProfile} className = {styles.profileImage} alt="profile"/> 
+                        <img style={{backgroundColor: this.state.anonymous?.color, cursor:(this.props.user_id?'pointer':'default')}} src={this.state.userInfo?.photo || this.state.anonymous?.image || BlankProfile} className = {styles.profileImage} alt="profile" onClick={()=>{if (this.props.user_id) window.location.href=`/profile/${this.props.user_id}`}}/> 
                         <div className={styles.profileInfo}>
                             <h2 style={{fontFamily:'roboto', color: '#5A5353'}}>{this.state.userInfo?.name || this.state.anonymous?.name || 'No name'}</h2>
                             <p style={{fontFamily:'roboto', color: '#D8D8D8'}}>{this.state.userInfo?.username || this.state.userInfo?.email || this.state.anonymous?.username}</p>
@@ -190,7 +190,7 @@ export default class Post extends Component<PostProp, PostPropState> {
                     </div> 
                     <div className={styles.postText}>
                         {this.props.text_content}
-                        {this.props.image_url?<img className={styles.postImage} src={this.props.image_url}/>:<></>}
+                        {this.props.image_url?<img className={styles.postImage} src={this.props.image_url} alt="post content"/>:<></>}
                     </div>
                     <div className={styles.buttons}>
                     <IconButton>
