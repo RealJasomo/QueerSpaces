@@ -7,7 +7,7 @@ import {
   Link
 } from 'react-router-dom'
 import MenuIcon from '@material-ui/icons/Menu'
-import {Login, SignUp, Profile, Account, firebase, usersRef, PostBox, PostContext, ProtectedRoute, FirebaseAuthContext, Profiles} from './components'
+import {Login, SignUp, Profile, Account, firebase, usersRef, PostBox, PostContext, ProtectedRoute, FirebaseAuthContext, Profiles, Comments} from './components'
 
 import styles from './css/app.module.css'
 import BlankProfile from './res/bp.png'
@@ -146,6 +146,9 @@ class App extends Component<any, ApplicationState> {
       </Switch>
       <Switch>
         <Route path="/profiles" component={Profiles} />
+      </Switch>
+      <Switch>
+        <Route path="/comments/:id" component={Comments} />
       </Switch>
     </Router>
     </div>

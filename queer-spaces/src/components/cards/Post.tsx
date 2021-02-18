@@ -1,6 +1,7 @@
 import React, { Component} from 'react'
 import { firebase, usersRef, usernameRef } from '../'
 import { Button, IconButton, Menu, MenuItem, Modal, RadioGroup, Radio, FormControlLabel } from '@material-ui/core'
+import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCommentDots } from '@fortawesome/free-regular-svg-icons'
 import PollIcon from '@material-ui/icons/Poll'
@@ -17,15 +18,17 @@ import { generate, AnonymousInfo } from '../../util/AnonymousGenerator'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 
 interface PostProp {
-    category: string,
+    category?: string,
     text_content?: string | null,
     poll_question?: string | null,
     poll_options?: firebase.firestore.CollectionReference<firebase.firestore.DocumentData> | null,
     image_url?: string | null,
     user_id?: string | null,
-    created: firebase.firestore.Timestamp,
+    created?: firebase.firestore.Timestamp,
     userInfo?: Partial<User>,
-    doc: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>
+    doc: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>,
+    commentActive?: boolean,
+    disableComment?: boolean
 }
 
 interface PostPropState{
@@ -197,9 +200,15 @@ export default class Post extends Component<PostProp, PostPropState> {
                         {this.props.image_url?<img className={styles.postImage} src={this.props.image_url} alt="post content"/>:<></>}
                     </div>
                     <div className={styles.buttons}>
+                    {!this.props.disableComment && (this.props.commentActive?
+                    <IconButton>
+                        <FontAwesomeIcon icon={faCommentDots}  className={styles.send}/>
+                    </IconButton>
+                    :<Link to={`/comments/${this.props.doc.id}`}>
                     <IconButton>
                         <FontAwesomeIcon icon={faCommentDots}  className={styles.iconBlack}/>
                     </IconButton>
+                    </Link>)}
                     <div className={styles.likes}>
                         <p className={styles.likeNumber}>{this.state.likes}</p>
                         <IconButton onClick={this.handleLike}>
