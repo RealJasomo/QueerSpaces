@@ -1,0 +1,41 @@
+.profilesArea {
+    font-family: Roboto;
+    margin: 15px;
+}
+
+.card{
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    max-width: 100%;
+    margin: 15px;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 25px;
+    padding: 15px;
+    flex-basis: 45%;
+}
+
+.profileImage{
+    border-radius: 50%;
+    width: 4rem;
+    height: 4rem;
+    border: 5px solid #D8D8D8;
+}
+
+.profileButton{
+    background-color: #A42197 !important;
+    color: white !important;
+    margin: 0 auto !important;
+    max-width: 200px !important;
+    padding: 15px !important;
+}
+
+.profileButton:hover{
+    background-color: #F8E4F6 !important;
+    font-style: normal !important;
+    color: #666 !important;
+}
+
+.link{
+    text-decoration: none;
+    color: inherit;
+}

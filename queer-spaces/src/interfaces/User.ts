@@ -3,5 +3,7 @@ export interface User{
     name: string,
     phone: string,
     photo: string,
-    username: string   
+    username: string,
+    bio: string,
+    banner: string 
 }

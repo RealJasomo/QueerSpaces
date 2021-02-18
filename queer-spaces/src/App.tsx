@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {AppBar, Toolbar, IconButton, Typography, Button, Menu, MenuItem} from '@material-ui/core'
+import {AppBar, Toolbar, IconButton, Typography, Button, Menu, MenuItem, Drawer, List, ListItem, ListItemIcon, ListItemText} from '@material-ui/core'
 import {
   BrowserRouter as Router,
   Switch,
@@ -7,15 +7,18 @@ import {
   Link
 } from 'react-router-dom'
 import MenuIcon from '@material-ui/icons/Menu'
-import {Login, SignUp, Profile, Account, firebase, usersRef, PostBox, PostContext, ProtectedRoute, FirebaseAuthContext} from './components'
+import {Login, SignUp, Profile, Account, firebase, usersRef, PostBox, PostContext, ProtectedRoute, FirebaseAuthContext, Profiles} from './components'
+
 import styles from './css/app.module.css'
 import BlankProfile from './res/bp.png'
+import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount'
 
 interface ApplicationState {
   loggedIn: boolean,
   profileMenuOpen: HTMLImageElement | null,
   user: firebase.User | null,
-  photoURL: string | null
+  photoURL: string | null,
+  openDrawer: boolean
 }
 
 class App extends Component<any, ApplicationState> {
@@ -25,7 +28,8 @@ class App extends Component<any, ApplicationState> {
       loggedIn: false,
       profileMenuOpen: null,
       user: null,
-      photoURL: null
+      photoURL: null,
+      openDrawer: false
     }
     firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
       if(user){
@@ -62,6 +66,10 @@ class App extends Component<any, ApplicationState> {
   handleSignout = () => {
     firebase.auth().signOut();
   }
+
+  toggleDrawer = (toggle: boolean) => () => {
+    this.setState({openDrawer: toggle});
+  }
   render () {
     return (
     <>
@@ -70,7 +78,7 @@ class App extends Component<any, ApplicationState> {
     <Router>
     <AppBar position="static" style={{backgroundColor: '#A42197'}}>
     <Toolbar>
-      <IconButton edge="start" className={styles.menuButton} color="inherit" aria-label="menu">
+      <IconButton edge="start" className={styles.menuButton} color="inherit" aria-label="menu" onClick={this.toggleDrawer(true)}>
         <MenuIcon />
       </IconButton>
       <Typography variant="h6" className={`${styles.title} ${styles.link}`} component={Link} to="/">
@@ -94,7 +102,26 @@ class App extends Component<any, ApplicationState> {
         </>}
     </Toolbar>
     </AppBar>
-      <Switch>
+    <Drawer open={this.state.openDrawer} onClose={this.toggleDrawer(false)}>
+                    <div
+                      tabIndex={0}
+                      role="button"
+                      onClick={this.toggleDrawer(false)}
+                      onKeyDown={this.toggleDrawer(false)}
+                    >
+                       <List>
+                          <Link to="/profiles" className={styles.link}>
+                              <ListItem>     
+                                <ListItemIcon>
+                                <SupervisorAccountIcon/>
+                            </ListItemIcon>
+                              <ListItemText primary="&nbsp;&nbsp;&nbsp;Profiles"/>
+                            </ListItem>
+                          </Link>
+                      </List>
+                    </div>
+                    </Drawer>
+    <Switch>
           <Route exact path="/">
             <div>
               {this.state.user ? <><PostBox /><PostContext/></>: <p>Please login</p>}
@@ -116,6 +143,9 @@ class App extends Component<any, ApplicationState> {
       </Switch>
       <Switch>
         <Route path="/profile/:id" component={Profile}/>
+      </Switch>
+      <Switch>
+        <Route path="/profiles" component={Profiles} />
       </Switch>
     </Router>
     </div>
