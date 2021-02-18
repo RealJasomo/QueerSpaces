@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {IconButton, TextField , Button, Modal, InputAdornment, OutlinedInput} from '@material-ui/core'
+import {IconButton, TextField , Button, Modal, InputAdornment, OutlinedInput, Menu, MenuItem} from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import BlankProfile from '../../res/bp.png'
 import styles from '../../css/postbox.module.css'
@@ -30,7 +30,9 @@ interface PostBoxState {
     user: firebase.User | null,
     ref: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>,
     profileImage: string | null,
-    hasPoll: boolean
+    hasPoll: boolean,
+    isAnonymous: boolean,
+    anonymousMenu: HTMLImageElement | null
 }
 
 export default class PostBox extends Component<PostBoxProps, PostBoxState>{
@@ -46,7 +48,9 @@ export default class PostBox extends Component<PostBoxProps, PostBoxState>{
             user: null,
             ref: firebase.firestore().collection('Posts'),
             profileImage: null,
-            hasPoll: false
+            hasPoll: false,
+            isAnonymous: false,
+            anonymousMenu: null
         }
         this.fileUpload = null;
         firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
@@ -71,6 +75,8 @@ export default class PostBox extends Component<PostBoxProps, PostBoxState>{
             created: firebase.firestore.Timestamp.now()
         }
         Object.keys(payload).forEach(key => {if(payload[key as keyof typeof payload] === null || payload[key as keyof typeof payload] === undefined) delete payload[key as keyof typeof payload]});
+        if(this.state.isAnonymous)
+            delete payload.user_id;
         this.state.ref.add(payload)
         .then((doc)=>{
             if(this.state.hasPoll){
@@ -137,6 +143,9 @@ export default class PostBox extends Component<PostBoxProps, PostBoxState>{
         }
     }
 
+    handleAnonymousToggle = () => {
+        this.setState({isAnonymous: !this.state.isAnonymous, anonymousMenu: null});
+    }
     render(){ 
         return(
         <>
@@ -163,6 +172,15 @@ export default class PostBox extends Component<PostBoxProps, PostBoxState>{
                         </form>
                     </div>
             </Modal>
+            <Menu
+             id="anonymous-menu"
+             style={{top: '60px'}}
+             anchorEl={this.state.anonymousMenu}
+             keepMounted
+             open={!!this.state.anonymousMenu}
+             onClose={()=> this.setState({anonymousMenu: null})}>
+                 {this.state.isAnonymous?<MenuItem onClick={this.handleAnonymousToggle}>Post as yourself</MenuItem>:<MenuItem onClick={this.handleAnonymousToggle}>Post anonymously</MenuItem>}
+             </Menu>
             <Modal aria-labelledby="poll-title"
                 open={this.state.openPollCreator}
                 onClose={()=>this.setState({openPollCreator: false})}>
@@ -219,7 +237,8 @@ export default class PostBox extends Component<PostBoxProps, PostBoxState>{
             <div className={styles.card}>
                 <div className={styles.upper}>
                     <div id="profile">
-                        <img src={this.state.profileImage || BlankProfile} className = {styles.profileImage} alt="profile"/> 
+                        <img src={this.state.profileImage || BlankProfile} className = {styles.profileImage} alt="profile" onClick={(e)=>this.setState({anonymousMenu: e.currentTarget})}/> 
+                        {this.state.isAnonymous&&<p style={{fontFamily:"Roboto", textAlign:"center"}}>Posting anonymously</p>}
                     </div> 
                     <div id="content" className={styles.contentContainer}>
                         <textarea
