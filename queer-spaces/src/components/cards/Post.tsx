@@ -1,8 +1,10 @@
-import React, { Component } from 'react'
+import React, { Component} from 'react'
 import { firebase, usersRef, usernameRef } from '../'
-import { Button, IconButton, Menu, MenuItem, Modal } from '@material-ui/core'
+import { Button, IconButton, Menu, MenuItem, Modal, RadioGroup, Radio, FormControlLabel } from '@material-ui/core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCommentDots } from '@fortawesome/free-regular-svg-icons'
+import PollIcon from '@material-ui/icons/Poll'
+import SendIcon from '@material-ui/icons/Send'
 import ThumbUpOutlinedIcon from '@material-ui/icons/ThumbUpOutlined'
 import ThumbUpIcon from '@material-ui/icons/ThumbUp'
 import ThumbDownOutlinedIcon from '@material-ui/icons/ThumbDownOutlined'
@@ -12,12 +14,13 @@ import BlankProfile from '../../res/bp.png'
 import styles from '../../css/postbox.module.css'
 import { User } from '../../interfaces/User'
 import { generate, AnonymousInfo } from '../../util/AnonymousGenerator'
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 
 interface PostProp {
     category: string,
     text_content?: string | null,
     poll_question?: string | null,
-    poll_options?: Array<string> | null,
+    poll_options?: firebase.firestore.CollectionReference<firebase.firestore.DocumentData> | null,
     image_url?: string | null,
     user_id?: string | null,
     created: firebase.firestore.Timestamp,
@@ -190,6 +193,7 @@ export default class Post extends Component<PostProp, PostPropState> {
                     </div> 
                     <div className={styles.postText}>
                         {this.props.text_content}
+                        {this.props.poll_question&&this.props.poll_options&&<Polls poll_options={this.props.poll_options} poll_question={this.props.poll_question} post={this.props.doc}/>}
                         {this.props.image_url?<img className={styles.postImage} src={this.props.image_url} alt="post content"/>:<></>}
                     </div>
                     <div className={styles.buttons}>
@@ -211,5 +215,129 @@ export default class Post extends Component<PostProp, PostPropState> {
                     </div>
                 </div>
             </>)
+    }
+}
+
+interface PollProps{
+    poll_question: string,
+    poll_options: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>,
+    post: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData> 
+}
+interface PollState{
+    options: PollOption[],
+    selectedOption: string,
+    submitted: boolean,
+    counts: number[]
+}
+
+interface PollOption {
+    id: string,
+    content: string
+}
+class Polls extends Component<PollProps,PollState>{
+    constructor(props: PollProps){
+        super(props);
+        this.state = {
+            options: [],
+            selectedOption: '',
+            submitted: false,
+            counts: []
+        }
+        this.fetchSelectedOption();
+        this.fetchCounts();
+        this.fetchOptions();
+    }
+    fetchSelectedOption = () =>{
+        const user = firebase.auth().currentUser;
+        if(user){
+            this.props.poll_options.get().then((snapshot) => {
+                if(!snapshot.empty){
+                    snapshot.docs.forEach(doc => {
+                        doc.ref.collection('responses').doc(user.uid).get()
+                        .then((snapshot)=>{
+                            console.log(doc)
+                            if(snapshot.exists){
+                                this.setState({selectedOption: doc.id, submitted: true});
+                                console.log(doc.id);
+                        }
+                    })
+                    })
+                }
+            })
+        }
+    }
+    
+    fetchCounts = async () => {
+            await this.setState({counts: []});
+            this.props.poll_options.get().then((snapshot) => {
+                if(!snapshot.empty){
+                    for(const data of snapshot.docs){
+                        data.ref.collection('responses').get().then((snapshot) => {
+                            var count = this.state.counts;
+                            count.push(snapshot.docs.length);
+                            this.setState({counts: count});
+                        });
+                    }
+                }
+            })
+    }
+    submitPoll = async () => {
+        const user = firebase.auth().currentUser;
+       this.props.poll_options.get().then((snapshot) => {
+            if(!snapshot.empty)
+                snapshot.docs.forEach(data => {
+                    if(data.exists && user){
+                        data.ref.collection('responses').doc(user.uid).delete();
+                    }
+                })
+        }).then(()=>{
+            if(user)
+                this.props.poll_options.doc(this.state.selectedOption).collection('responses').doc(user.uid).set({response: true});
+        }).then(()=>{this.setState({submitted: true}); this.fetchCounts()}).catch((err) => {
+            console.log(err);
+        })
+
+    }
+
+    fetchOptions = () => {
+        this.props.poll_options.onSnapshot(snapshot => {
+            if(!snapshot.empty){
+                this.setState({options: snapshot.docs.map(d => ({
+                    id: d.id,
+                    content: d.get('option_text')
+                }) as PollOption)})
+            } 
+         });
+    }
+
+    render(){
+        return (<>
+            <div className={styles.pollHeader}>
+                <h1 style={{flexGrow:1}}><PollIcon/>{this.props.poll_question}</h1>
+                {(this.state.selectedOption&&!this.state.submitted)?<IconButton onClick={this.submitPoll} className={styles.pollSubmit}>
+                    <SendIcon/>
+                </IconButton>
+                :<IconButton onClick={()=>this.setState({submitted: false})}>
+                    <ArrowBackIosIcon />
+                </IconButton>}
+            </div>
+            <div className={this.state.submitted?styles.pollCompleted:styles.pollOptions}>
+            {this.state.submitted?
+                <div>
+                    {this.state.counts.reduce((p,c)=>p+c,0)>0&&this.state.options.map((data, idx) => (
+                        <div key={idx} style={{display:'flex'}}>
+                            <p className={this.state.selectedOption===data.id?styles.selectedOption:styles.pollOptionCompleted} style={this.state.counts[idx]===0?{backgroundColor:'white'}:{width:`${(this.state.counts[idx]/this.state.counts.reduce((p,c)=>p+c,0) * 100).toFixed(2)}%`}}>{data.content}</p><p style={{marginLeft:"1rem"}}>{`${(this.state.counts[idx]/this.state.counts.reduce((p,c)=>p+c,0) * 100).toFixed(2)}%`}</p>
+                        </div>
+                    ))}
+                    <p style={{marginTop:'1rem'}}>{this.state.counts.reduce((p,c)=>p+c,0)} responses</p>
+                </div>
+                :<RadioGroup aria-label="poll" name="userpoll" value={this.state.selectedOption} onChange={e=>this.setState({selectedOption:e.currentTarget.value})}>
+            {this.state.options.map((data, idx) => (
+                <div key={idx} className={styles.pollOption}>
+                   <FormControlLabel value={data.id} control={<Radio color="default" />} label={data.content} />
+                </div>))}
+            </RadioGroup>}
+            </div>
+        </>)
     }
 }

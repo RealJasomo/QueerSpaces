@@ -207,3 +207,35 @@
     box-shadow: 5px 4px 10px rgba(0, 0, 0, 0.2);
     opacity: 70%;
 }
+
+.pollOption {
+    padding: 15px;
+}
+
+.pollOptions {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.pollHeader{
+    display: flex;
+}
+
+.pollSubmit{
+    color: #A42197 !important;
+    margin-right: 3rem;
+}
+
+.pollCompleted{
+    margin: 2rem;
+}
+
+.selectedOption{
+    background-color: rgba(139, 15, 127, 0.42);
+}
+
+.pollOptionCompleted{
+    background-color: #C4C4C4;
+}
