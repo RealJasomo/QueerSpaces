@@ -39,7 +39,9 @@ interface PostPropState{
     liked: boolean,
     disliked: boolean,
     anonymous?: AnonymousInfo,
-    delete: boolean
+    delete: boolean,
+    edit: boolean,
+    editText: string
 }
 export default class Post extends Component<PostProp, PostPropState> {
     constructor(props: PostProp){
@@ -51,7 +53,9 @@ export default class Post extends Component<PostProp, PostPropState> {
             liked: false,
             disliked: false,
             anonymous: (this.props.user_id)?undefined:generate(),
-            delete: false
+            delete: false,
+            edit: false, 
+            editText: this.props.text_content || ''
         }
         this.updateUserInfo();
         this.updateRating();
@@ -159,6 +163,13 @@ export default class Post extends Component<PostProp, PostPropState> {
             })
         }
     }
+
+    handleUpdateText = () => {
+        this.props.doc.ref.set({
+            text_content: this.state.editText
+        }, {merge: true}).then(()=>{this.setState({edit: false})}).catch((err) => console.log(err));
+    }
+
     render() {
         return (<>
                 <Modal
@@ -175,6 +186,26 @@ export default class Post extends Component<PostProp, PostPropState> {
                         </div>
                     </div>
                 </Modal>
+                <Modal
+                 open={this.state.edit}
+                 onClose={()=>this.setState({edit: false})}
+                 aria-labelledby="edit-title"
+                 >
+                    <div className={styles.paper}>
+                        <h1 id="edit-title"> Edit your post</h1>
+                        <textarea
+                        className={styles.content}
+                        id="text-content"
+                        maxLength={250}
+                        placeholder="Enter content"
+                        value={this.state.editText}
+                        onChange={(event)=>this.setState({editText: event.target.value})}
+                        />
+                        <IconButton onClick={this.handleUpdateText}>
+                            <SendIcon className={styles.send}/>
+                        </IconButton>
+                    </div>
+                </Modal>
                 <Menu
                     id="post-menu"
                     style={{top: '40px'}}
@@ -182,7 +213,7 @@ export default class Post extends Component<PostProp, PostPropState> {
                     keepMounted
                     open={!!this.state.menuOpen}
                     onClose={() => this.setState({menuOpen: null})}>
-                    <MenuItem>Edit</MenuItem>
+                    <MenuItem onClick={()=>{this.setState({edit: true})}}>Edit</MenuItem>
                     <MenuItem onClick={()=>{this.setState({delete: true})}}>Delete</MenuItem>
                 </Menu>
                 <div className={styles.card}>
