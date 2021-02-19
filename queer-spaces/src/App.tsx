@@ -7,7 +7,7 @@ import {
   Link
 } from 'react-router-dom'
 import MenuIcon from '@material-ui/icons/Menu'
-import {Login, SignUp, Profile, Account, firebase, usersRef, PostBox, PostContext, Messages, ProtectedRoute, FirebaseAuthContext, Profiles, Comments} from './components'
+import {Login, SignUp, Profile, Account, Homepage, firebase, usersRef, PostBox, PostContext, Messages, ProtectedRoute, FirebaseAuthContext, Profiles, Comments} from './components'
 
 import styles from './css/app.module.css'
 import BlankProfile from './res/bp.png'
@@ -133,7 +133,7 @@ class App extends Component<any, ApplicationState> {
     <Switch>
           <Route exact path="/">
             <div>
-              {this.state.user ? <><PostBox /><PostContext/></>: <p>Please login</p>}
+              {this.state.user ? <><PostBox /><PostContext/></>: <Homepage />}
             </div>
           </Route>
       </Switch>

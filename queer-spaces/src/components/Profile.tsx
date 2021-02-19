@@ -283,7 +283,7 @@ export default class Profile extends Component<ProfileProps, ProfileState>{
                     <p>{this.state.user?.get('bio') || 'No bio for this user'}</p>
                 </div>
                 <div className={styles.followSection}>
-                    {this.state.user?.id!==firebase.auth().currentUser?.uid&&<><IconButton onClick={this.handleChat}><ChatIcon/></IconButton><Button className={styles.followButton} onClick={this.handleFollowUser}>{this.state.isFollowing?'Unfollow':'Follow'}</Button></>}
+                    {firebase.auth().currentUser&&this.state.user?.id!==firebase.auth().currentUser?.uid&&<><IconButton onClick={this.handleChat}><ChatIcon/></IconButton><Button className={styles.followButton} onClick={this.handleFollowUser}>{this.state.isFollowing?'Unfollow':'Follow'}</Button></>}
                     <p>{this.state.followers} followers</p>
                     <p>following {this.state.following}</p>
                 </div>
