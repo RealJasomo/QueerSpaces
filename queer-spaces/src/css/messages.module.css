@@ -54,3 +54,60 @@
     text-align: center;
     border-radius: 25px;
 }
+
+.characterCount {
+    font-family: Roboto;
+    font-weight: 600;
+    margin-top: 10px;
+    color: black;
+    float: right;
+    margin: .5rem .5rem;
+}
+
+.warning {
+    color:#FFD300;
+}
+
+.danger {
+    color: 	red;
+}
+
+.content{
+    width: 100%;
+    height: 20vh;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+    overflow: auto;
+    font-size: 20px;
+    resize: none;
+    background-color:#F8E4F6;
+    color: #C4C4C4;
+}
+
+.messageBox{
+   display: flex;
+   flex-direction: column;
+   padding: 15px;
+   box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.2);
+   background-color:#F8E4F6;
+   border-radius: 25px;
+   width: 80%;
+   margin: 15px auto;
+}
+
+.ownMessage{
+    margin: 15px;
+    align-self: flex-end;
+    background-color: aqua;
+    padding:15px;
+    border-radius: 25px;
+}
+
+.theirMessage{
+    margin: 15px;
+    align-self: flex-start;
+    background-color: lightgreen;
+    padding:15px;
+    border-radius: 25px;
+}

@@ -1,15 +1,18 @@
-import React, { Component, useState, useEffect } from 'react'
+import React, { Component, useState, useEffect, useRef } from 'react'
 import { firebase, usernameRef, usersRef } from './'
 import { AuthContext } from './firebase/AuthContext'
 import { User } from '../interfaces/User'
-import { Button, Modal } from '@material-ui/core'
+import { Button, Modal, IconButton } from '@material-ui/core'
+import moment from 'moment'
 
 import styles from '../css/messages.module.css'
 import BlankProfile from '../res/bp.png'
+import SendIcon from '@material-ui/icons/Send'
 
 
 interface MessagesState {
-    messages: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>[]
+    messages: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>[];
+    selectedMessage: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData> | null
 }
 
 export default class Messages extends Component<{}, MessagesState> {
@@ -17,7 +20,8 @@ export default class Messages extends Component<{}, MessagesState> {
     constructor(props: {}){
         super(props);
         this.state = {
-            messages: []
+            messages: [],
+            selectedMessage: null
         }
     }
 
@@ -44,13 +48,18 @@ export default class Messages extends Component<{}, MessagesState> {
 
     render() {
         const refreshFunction = this.fetchMessages.bind(this);
+        const handleMessageCardClick = ((data: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>)=>(event:  React.MouseEvent<HTMLButtonElement, MouseEvent> | void) => {
+            if(event)
+                event.preventDefault();
+            this.setState({selectedMessage: data})
+        }).bind(this);
         return (
             <div className={styles.messageArea}>
                 <h1>Messages</h1>
-                <div className={styles.messages}>
-                {this.state.messages.map(data => {
-                    return (<MessageCard key={data.id} {...({...data.data() as MessageData, user:this.context.user as firebase.User | null, doc:data, refresh:refreshFunction}) as MessageProps}/>)
-                })}
+                <div className={!this.state.selectedMessage?styles.messages:''}>
+                {!this.state.selectedMessage? this.state.messages.map(data => {
+                    return (<MessageCard key={data.id} {...({...data.data() as MessageData, user:this.context.user as firebase.User | null, doc:data, refresh:refreshFunction, onClick:handleMessageCardClick(data)})as MessageProps}/>)
+                }) : <MessageContainer {...({...this.state.selectedMessage.data() as MessageData, user:this.context.user as firebase.User | null, doc:this.state.selectedMessage, refresh:refreshFunction})as MessageProps}/>}
                 </div>
             </div>
         )
@@ -65,7 +74,8 @@ interface MessageData{
 interface MessageProps extends MessageData {
     doc: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>;
     user: firebase.User | null;
-    refresh: Function
+    refresh: Function;
+    onClick?: (event:  React.MouseEvent<HTMLButtonElement, MouseEvent> | void) => void;
 }
 
 const MessageCard = (props: MessageProps) => {
@@ -73,6 +83,7 @@ const MessageCard = (props: MessageProps) => {
     const [otherId, setOtherId] = useState<string>('');
     const [otherUsername, setOtherUsername] = useState<string>('');
     const [deleteModal, setDeleteModal] = useState<boolean>(false);
+
     useEffect(()=>{
         var id = props.user1===props.user?.uid?props.user2:props.user1;
         usersRef.doc(id).onSnapshot((snapshot) => {
@@ -115,9 +126,81 @@ const MessageCard = (props: MessageProps) => {
                     </div>
                 </Modal>
             <div className={styles.messageCardButtons}>
-                <Button style={{backgroundColor:'#A42197', marginTop:'1rem',color: 'white'}}>Open Chat</Button>
+                <Button style={{backgroundColor:'#A42197', marginTop:'1rem',color: 'white'}} onClick={props.onClick}>Open Chat</Button>
                 <Button style={{backgroundColor:'#A42197', marginTop:'1rem',marginLeft:'1rem',color: 'white'}} onClick={_=>setDeleteModal(true)}>Delete Chat</Button>
             </div>
         </>}
+    </div>)
+}
+
+interface Message {
+    message: string;
+    sent: firebase.firestore.Timestamp;
+    user_id: string;
+}
+const MessageContainer = (props: MessageProps) => {
+   const [message,setMessage] = useState<string>('');
+   const [messages, setMessages] = useState<Message[]>([]);
+   const messagesRef = useRef<HTMLDivElement>(null);
+
+   useEffect(()=>{
+    props.doc.ref.collection("messages").orderBy('sent').onSnapshot((snapshot) =>{
+        setMessages([...snapshot.docs.map(e => e.data() as Message)]);
+    })
+   },[]);
+   
+   useEffect(()=>{
+       scrollToBottom();
+   },[messages]);
+
+
+   const scrollToBottom = () => {
+       console.log(messagesRef);
+        messagesRef.current?.scrollBy({top: 9999,
+        behavior:'smooth'
+        });
+   }
+
+   const handleSendMessage = ()=>{
+       if(props.user)
+            props.doc.ref.collection("messages").add({
+                message,
+                sent: firebase.firestore.Timestamp.now(),
+                user_id: props.user.uid
+            } as Message).then(_ => setMessage(''));
+   }
+
+   return (<>
+            <div ref={messagesRef} style={{width:'100%', display:'flex', flexDirection:"column", height:"60vh", overflowY:'auto'}}>
+            {messages.map((data,idx)=>{
+                return (<ChatMessage {...data} user={props.user}/>)
+            })}
+            </div>
+            <div className={styles.messageBox}>
+            <div style={{display: 'flex'}}>
+                <textarea style={{color: 'black'}}
+                        className={styles.content}
+                        id="comment"
+                        value={message}
+                        maxLength={250}
+                        placeholder="Enter your message here..."
+                        onChange={(event)=>setMessage(event.currentTarget.value)}
+                        />
+                <IconButton onClick={handleSendMessage} style={{justifySelf:'flex-end', alignSelf:'flex-end', color:'#A42197'}}>
+                    <SendIcon />
+                </IconButton>
+            </div>
+            <div className={`${styles.characterCount} ${(message.length > 200)?styles.danger:(message.length > 100)?styles.warning:''}`}>{message.length}/250 characters</div>
+            </div>
+    </>)
+}
+
+interface ChatProps extends Message{
+    user: firebase.User | null
+}
+const ChatMessage = (props: ChatProps )=>{
+    return (<div className={props.user?.uid===props.user_id?styles.ownMessage:styles.theirMessage}>
+        <p>{props.message}</p>
+        <p style={{fontStyle:'italic'}}>{moment(props.sent.toDate()).format('llll')}</p>
     </div>)
 }
