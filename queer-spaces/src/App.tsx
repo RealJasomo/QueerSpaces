@@ -7,11 +7,12 @@ import {
   Link
 } from 'react-router-dom'
 import MenuIcon from '@material-ui/icons/Menu'
-import {Login, SignUp, Profile, Account, firebase, usersRef, PostBox, PostContext, ProtectedRoute, FirebaseAuthContext, Profiles, Comments} from './components'
+import {Login, SignUp, Profile, Account, firebase, usersRef, PostBox, PostContext, Messages, ProtectedRoute, FirebaseAuthContext, Profiles, Comments} from './components'
 
 import styles from './css/app.module.css'
 import BlankProfile from './res/bp.png'
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount'
+import ChatIcon from '@material-ui/icons/Chat'
 
 interface ApplicationState {
   loggedIn: boolean,
@@ -118,6 +119,14 @@ class App extends Component<any, ApplicationState> {
                               <ListItemText primary="&nbsp;&nbsp;&nbsp;Profiles"/>
                             </ListItem>
                           </Link>
+                          {this.state.loggedIn&&<Link to="/messages" className={styles.link}>
+                            <ListItem>
+                              <ListItemIcon>
+                                <ChatIcon />
+                              </ListItemIcon>
+                              <ListItemText primary="&nbsp;&nbsp;&nbsp;Messages"/>
+                            </ListItem>
+                          </Link>}
                       </List>
                     </div>
                     </Drawer>
@@ -149,6 +158,9 @@ class App extends Component<any, ApplicationState> {
       </Switch>
       <Switch>
         <Route path="/comments/:id" component={Comments} />
+      </Switch>
+      <Switch>
+        <ProtectedRoute path="/messages" to="/" children={<Messages />} />
       </Switch>
     </Router>
     </div>

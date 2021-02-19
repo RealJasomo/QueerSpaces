@@ -8,6 +8,7 @@ import styles from '../css/profile.module.css'
 import BlankProfile from '../res/bp.png'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import EditIcon from '@material-ui/icons/Edit'
+import ChatIcon from '@material-ui/icons/Chat'
 
 interface MatchParams {
     id: string;
@@ -168,6 +169,29 @@ export default class Profile extends Component<ProfileProps, ProfileState>{
               return PromiseFollowing;
             }).then(this.fetchUser).catch(err=>console.log(err));
     }
+
+    handleChat = () => {
+        const user = firebase.auth().currentUser;
+        if(user){
+            var messageRef = firebase.firestore().collection('Messages');
+            messageRef.where('user1', '==', user.uid ).where('user2', '==', this.state.user?.id).onSnapshot(async (snapshot) => {
+                if(snapshot.empty){
+                    await messageRef.where('user1', '==', this.state.user?.id).where('user2', '==', user.uid).onSnapshot((snap) =>{
+                        if(!snap.empty)
+                            console.log(snap.docs);
+                        console.log(messageRef.add({
+                            created: firebase.firestore.Timestamp.now(),
+                            user1: user.uid,
+                            user2: this.state.user?.id
+                        }));
+                    })
+                }else
+                    console.log(snapshot.docs);
+
+            })
+    }
+}
+
     render() {
         return (
             <>
@@ -259,7 +283,7 @@ export default class Profile extends Component<ProfileProps, ProfileState>{
                     <p>{this.state.user?.get('bio') || 'No bio for this user'}</p>
                 </div>
                 <div className={styles.followSection}>
-                    {this.state.user?.id!==firebase.auth().currentUser?.uid&&<Button className={styles.followButton} onClick={this.handleFollowUser}>{this.state.isFollowing?'Unfollow':'Follow'}</Button>}
+                    {this.state.user?.id!==firebase.auth().currentUser?.uid&&<><IconButton onClick={this.handleChat}><ChatIcon/></IconButton><Button className={styles.followButton} onClick={this.handleFollowUser}>{this.state.isFollowing?'Unfollow':'Follow'}</Button></>}
                     <p>{this.state.followers} followers</p>
                     <p>following {this.state.following}</p>
                 </div>

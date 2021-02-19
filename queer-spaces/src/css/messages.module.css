@@ -1,0 +1,56 @@
+.messageArea{
+    font-family: Roboto;
+    margin-top: 15px;
+    margin-left: 15px;
+}
+
+.messageCard{
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    margin: 1rem;
+    padding: 1rem;
+    border-radius: 25px;
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.2);
+    width: 40vw;
+}
+
+.messageCardImage{
+    width: 7vw;
+    height: 7vw;
+    border-radius: 50%;
+    border: 10px solid #D8D8D8;
+    cursor: pointer;
+}
+
+.messageCardButtons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.messages {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+@media only screen and (max-width: 600px){
+    .messageCard{
+        width: 60vw;
+    }
+}
+
+.modal{
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%,-50%);
+    margin: 0 auto;
+    padding: 15px;
+    width: 70vw;
+    background-color: white;
+    box-shadow: 10px 10px 30px #666;
+    font-family: Roboto;
+    text-align: center;
+    border-radius: 25px;
+}
