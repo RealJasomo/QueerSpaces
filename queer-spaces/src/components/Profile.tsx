@@ -26,7 +26,10 @@ interface ProfileState {
     bannerError: string,
     bioText: string,
     displayName: string,
-    profileURL: string
+    profileURL: string,
+    followers: number,
+    following: number,
+    isFollowing: boolean
 }
 
 export default class Profile extends Component<ProfileProps, ProfileState>{
@@ -45,19 +48,31 @@ export default class Profile extends Component<ProfileProps, ProfileState>{
             bannerError: '',
             bioText: '',
             displayName: '',
-            profileURL: ''
+            profileURL: '',
+            followers: 0,
+            following: 0,
+            isFollowing: false
         }
         this.fetchUser().then(this.fetchPosts);
         this.fileUpload = null;
         this.profileUpload = null;
     }
+
     fetchUser = async () => {
         //grab user info
-        usersRef.doc(this.props.match.params.id).get().then((snapshot) => {
-            if(snapshot.exists)
-                this.setState({user:snapshot, displayName: snapshot.get('name'), bioText: snapshot.get('bio')||''});
-        });
+     const user = firebase.auth().currentUser;
+        usersRef.doc(this.props.match.params.id).get().then(async (snapshot) => {
+            if(snapshot.exists){
+                this.setState({user:snapshot, displayName: snapshot.get('name'), bioText: snapshot.get('bio')||'',followers: await snapshot.ref.collection('followers').get().then((snapshot) => snapshot.docs.length), following: await snapshot.ref.collection('following').get().then((snapshot) => snapshot.docs.length)});
+                if(user)
+                snapshot.ref.collection('followers').doc(user.uid).onSnapshot((snap) => {
+                    this.setState({isFollowing: snap.exists});
+                })
+            }
+    });
+    
         //grab user name
+
         usernameRef.where('uid', '==', this.props.match.params.id).get().then((snapshot) => {
             if(!snapshot.empty){
                 snapshot.forEach((doc) => {
@@ -124,6 +139,35 @@ export default class Profile extends Component<ProfileProps, ProfileState>{
         }, {merge: true}).then(this.fetchUser).then(()=>this.setState({openProfileEdit: false})).catch((err)=>{console.log(err)})
     }
 
+    handleFollowUser = () => {
+        const user = firebase.auth().currentUser;
+        if(user)
+        firebase.firestore().runTransaction( async (transaction) => {
+         var PromiseFollowing = usersRef.doc(user.uid).collection('following').doc(this.state.user?.id).get().then((snap) => {
+                //unfollow
+                if(snap.exists){
+                    transaction.delete(snap.ref);
+                }
+                //follow
+                else{
+                    transaction.set(snap.ref, {
+                        following: true
+                    })
+                }
+
+            }).then(()=>usersRef.doc(this.state.user?.id).collection('followers').doc(user.uid).get().then((snapshot) => {
+                    //unfollow
+                    if(snapshot.exists)
+                        transaction.delete(snapshot.ref);
+                    //follow
+                    else{
+                        console.log("following")
+                        transaction.set(snapshot.ref, {follower: true});
+                    }
+                }));
+              return PromiseFollowing;
+            }).then(this.fetchUser).catch(err=>console.log(err));
+    }
     render() {
         return (
             <>
@@ -213,6 +257,11 @@ export default class Profile extends Component<ProfileProps, ProfileState>{
                     <h2 style={{color: '#5A5353'}}>{this.state.user?.get('name')  || 'No name'} {this.state.user?.id===firebase.auth().currentUser?.uid&&<IconButton onClick={()=>this.setState({openProfileEdit: true})}><EditIcon/></IconButton>}</h2>
                     <p style={{color: '#D8D8D8', marginBottom:'15px'}}>{this.state.username|| this.state.user?.get('email')|| "No username for this user"}</p>
                     <p>{this.state.user?.get('bio') || 'No bio for this user'}</p>
+                </div>
+                <div className={styles.followSection}>
+                    {this.state.user?.id!==firebase.auth().currentUser?.uid&&<Button className={styles.followButton} onClick={this.handleFollowUser}>{this.state.isFollowing?'Unfollow':'Follow'}</Button>}
+                    <p>{this.state.followers} followers</p>
+                    <p>following {this.state.following}</p>
                 </div>
             </div>
             {this.state.data.length > 0 ?<PostContext data={this.state.data} />: <p style={{fontFamily:'Roboto', color:'black', textAlign:'center', marginTop:'3rem'}}>No posts from this user</p>}

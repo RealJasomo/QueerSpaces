@@ -110,3 +110,19 @@
 .danger {
     color: 	red;
 }
+
+.followSection{
+    font-family: Roboto;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.followSection p{
+    margin: 0 1rem;
+}
+
+.followButton {
+    background-color:#A42197 !important;
+    color: white !important;
+    margin: 0px 1rem !important;
+}

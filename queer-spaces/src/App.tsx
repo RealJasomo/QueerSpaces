@@ -95,7 +95,7 @@ class App extends Component<any, ApplicationState> {
             keepMounted
             open={!!this.state.profileMenuOpen}
             onClose={() => this.setState({profileMenuOpen: null})}>
-            <MenuItem component={Link} to={`/profile/${this.state.user?.uid||''}`} onClick={()=>this.setState({profileMenuOpen: null})}>Profile</MenuItem>
+            <MenuItem onClick={async ()=>{await this.setState({profileMenuOpen: null}); window.location.assign(`/profile/${this.state.user?.uid||''}`)}}>Profile</MenuItem>
             <MenuItem component={Link} to="/account" className={styles.link} onClick={()=>this.setState({profileMenuOpen: null})}>My account</MenuItem>
             <MenuItem onClick={this.handleSignout}>Sign out</MenuItem>
           </Menu>

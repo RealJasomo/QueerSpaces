@@ -76,8 +76,13 @@ interface ProfileCardProps extends Partial<User>{
 }
 const ProfileCard = (props: ProfileCardProps) => {
     const [username, setUsername] = useState<string>('');
+    const [isFollowing, setFollowing] = useState<boolean>(false);
+    const [followedBy, setFollowedBy] = useState<boolean>(false);
 
-    useEffect(()=>{fetchUsername(props.id)},[props.id]);
+    useEffect(() => {
+        fetchUsername(props.id);
+        fetchFollow(props.id);
+    },[props.id]);
 
     const fetchUsername = (id: string) => {
         if(id)
@@ -85,6 +90,20 @@ const ProfileCard = (props: ProfileCardProps) => {
             if(!snapshot.empty)
                 setUsername(snapshot.docs[0].id)
         })
+    }
+    const fetchFollow = (id: string) =>{
+        const user = firebase.auth().currentUser;
+        if(id&&user){
+            usersRef.doc(user.uid).get().then((snapshot) => {
+                if(snapshot.exists){
+                    snapshot.ref.collection('following').doc(id).get().then(snap => {console.log(snap);setFollowing(snap.exists)}).then(() => {
+                        snapshot.ref.collection('followers').doc(id).get().then((snap) =>{
+                            setFollowedBy(snap.exists);
+                        })
+                    })
+                }
+            })
+        }
     }
 
     return (<>
@@ -94,6 +113,11 @@ const ProfileCard = (props: ProfileCardProps) => {
                 <h1>{props.name ||  "No display name"}</h1>
                 {username&&<p>@{username}</p>}
                 {props.bio&&<p style={{margin:'15px'}}>Bio:{props.bio}</p>}
+                <div style={{margin:'15px', backgroundColor:'rgba(196, 196, 196, 0.5)', textAlign:'center'}}>{(isFollowing&&followedBy)?'Friends'
+                    :<>
+                        {isFollowing&&'Following'}
+                        {followedBy&&'Follows you'}
+                    </>}</div>
             </div>
             <div style={{display:'flex', justifyContent:'center', alignItems:'center'}}>
             <Link to={`/profile/${props.id}`} className={styles.link}>

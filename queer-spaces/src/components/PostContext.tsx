@@ -7,7 +7,7 @@ import styles from '../css/postcontext.module.css'
 interface PostContextState {
     ref: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>,
     documentSnapshot: Array<firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>>,
-    category: string | null,
+    category: string | null
 }
 interface PostContextProps{
     data?: Array<firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>>
