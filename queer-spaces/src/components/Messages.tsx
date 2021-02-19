@@ -8,7 +8,7 @@ import moment from 'moment'
 import styles from '../css/messages.module.css'
 import BlankProfile from '../res/bp.png'
 import SendIcon from '@material-ui/icons/Send'
-
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 
 interface MessagesState {
     messages: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>[];
@@ -55,7 +55,7 @@ export default class Messages extends Component<{}, MessagesState> {
         }).bind(this);
         return (
             <div className={styles.messageArea}>
-                <h1>Messages</h1>
+                <h1>Messages{!!this.state.selectedMessage&&<IconButton onClick={_=>this.setState({selectedMessage: null})} style={{float:'right'}}><ArrowBackIosIcon/></IconButton>}</h1>
                 <div className={!this.state.selectedMessage?styles.messages:''}>
                 {!this.state.selectedMessage? this.state.messages.map(data => {
                     return (<MessageCard key={data.id} {...({...data.data() as MessageData, user:this.context.user as firebase.User | null, doc:data, refresh:refreshFunction, onClick:handleMessageCardClick(data)})as MessageProps}/>)
