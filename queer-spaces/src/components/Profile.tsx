@@ -177,17 +177,22 @@ export default class Profile extends Component<ProfileProps, ProfileState>{
             messageRef.where('user1', '==', user.uid ).where('user2', '==', this.state.user?.id).onSnapshot(async (snapshot) => {
                 if(snapshot.empty){
                     await messageRef.where('user1', '==', this.state.user?.id).where('user2', '==', user.uid).onSnapshot((snap) =>{
-                        if(!snap.empty)
-                            console.log(snap.docs);
-                        console.log(messageRef.add({
+                        if(!snap.empty){
+                            window.location.assign('/messages');
+                        }
+                        else{
+                        messageRef.add({
                             created: firebase.firestore.Timestamp.now(),
                             user1: user.uid,
                             user2: this.state.user?.id
-                        }));
+                        }).then(_ => {
+                            window.location.assign('/messages');
+                        });
+                    }
                     })
                 }else
                     console.log(snapshot.docs);
-
+                    window.location.assign('/messages');
             })
     }
 }

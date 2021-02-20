@@ -1,1 +1,1 @@
-export const categories: string[] = ['Gender Identity', 'Sexuality', 'Questions'];
+export const categories: string[] = ['Gender Identity', 'Sexuality', 'Questions', 'Questioning', 'Coming Out', 'Gay', 'Lesbian', 'Bisexual', 'Transgender', 'Non-binary', 'Asexual', 'Miscellaneous', 'Memes', 'Polls'];
